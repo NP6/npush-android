@@ -1,7 +1,7 @@
 trigger:
 - dev
-- feature-*
-- release-*
+- feature*
+- release*
 
 pool:
   vmImage: ubuntu-latest
@@ -27,7 +27,7 @@ steps:
 
 - task: Gradle@2
   displayName: 'Assemble for Debug'
-  condition: or(and(succeeded(), startsWith(variables['Build.SourceBranchName'], 'feature-')), and(succeeded(), startsWith(variables['Build.SourceBranchName'], 'dev')))
+  condition: or(and(succeeded(), startsWith(variables['Build.SourceBranchName'], 'feature')), and(succeeded(), startsWith(variables['Build.SourceBranchName'], 'dev')))
   inputs:
     workingDirectory: ''
     gradleWrapperFile: 'gradlew'
@@ -39,7 +39,7 @@ steps:
 
 - task: Gradle@2
   displayName: 'Assemble for Release'
-  condition: and(succeeded(), startsWith(variables['Build.SourceBranchName'], 'release-'))
+  condition: and(succeeded(), startsWith(variables['Build.SourceBranchName'], 'release'))
   inputs:
     workingDirectory: ''
     gradleWrapperFile: 'gradlew'
@@ -51,28 +51,28 @@ steps:
 
 - task: CopyFiles@2
   displayName: 'Copy debug application APK'
-  condition: or(and(succeeded(), startsWith(variables['Build.SourceBranchName'], 'feature-')), and(succeeded(), startsWith(variables['Build.SourceBranchName'], 'dev')))
+  condition: or(and(succeeded(), startsWith(variables['Build.SourceBranchName'], 'feature')), and(succeeded(), startsWith(variables['Build.SourceBranchName'], 'dev')))
   inputs:
     contents: '**/*debug*.apk'
     targetFolder: '$(build.artifactStagingDirectory)'
 
 - task: CopyFiles@2
   displayName: 'Copy debug SDK Library AAR'
-  condition: or(and(succeeded(), startsWith(variables['Build.SourceBranchName'], 'feature-')), and(succeeded(), startsWith(variables['Build.SourceBranchName'], 'dev')))
+  condition: or(and(succeeded(), startsWith(variables['Build.SourceBranchName'], 'feature')), and(succeeded(), startsWith(variables['Build.SourceBranchName'], 'dev')))
   inputs:
     contents: '**/*debug*.aar'
     targetFolder: '$(build.artifactStagingDirectory)'
 
 - task: CopyFiles@2
   displayName: 'Copy release application APK'
-  condition: and(succeeded(), startsWith(variables['Build.SourceBranchName'], 'release-'))
+  condition: and(succeeded(), startsWith(variables['Build.SourceBranchName'], 'release'))
   inputs:
     contents: '**/*release*.apk'
     targetFolder: '$(build.artifactStagingDirectory)'
 
 - task: CopyFiles@2
   displayName: 'Copy release application APK'
-  condition: and(succeeded(), startsWith(variables['Build.SourceBranchName'], 'release-'))
+  condition: and(succeeded(), startsWith(variables['Build.SourceBranchName'], 'release'))
   inputs:
     contents: '**/*release*.aar'
     targetFolder: '$(build.artifactStagingDirectory)'
@@ -88,7 +88,7 @@ steps:
 
 - task: CmdLine@2
   displayName: 'Deploy debug application to Firebase'
-  condition: or(and(succeeded(), startsWith(variables['Build.SourceBranchName'], 'feature-')), and(succeeded(), startsWith(variables['Build.SourceBranchName'], 'dev')))
+  condition: or(and(succeeded(), startsWith(variables['Build.SourceBranchName'], 'feature')), and(succeeded(), startsWith(variables['Build.SourceBranchName'], 'dev')))
   inputs:
     script: |
       firebase appdistribution:distribute demo/build/outputs/apk/debug/demo-debug.apk \
@@ -99,7 +99,7 @@ steps:
 
 - task: CmdLine@2
   displayName: 'Deploy release application to Firebase'
-  condition: and(succeeded(), startsWith(variables['Build.SourceBranchName'], 'release-'))
+  condition: and(succeeded(), startsWith(variables['Build.SourceBranchName'], 'release'))
   inputs:
     script: |
       firebase appdistribution:distribute demo/build/outputs/apk/release/demo-release-unsigned.apk \
@@ -110,7 +110,7 @@ steps:
 
 - task: Gradle@2
   displayName: 'publish SDK release'
-  condition: and(succeeded(), startsWith(variables['Build.SourceBranchName'], 'release-'))
+  condition: and(succeeded(), startsWith(variables['Build.SourceBranchName'], 'release'))
   inputs:
     workingDirectory: ''
     gradleWrapperFile: 'gradlew'
