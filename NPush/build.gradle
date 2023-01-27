@@ -62,8 +62,8 @@ android {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            buildConfigField "String", "NP6_SUBSCRIPION_API_URL", "${System.env.NP6_SUBSCRIPION_API_URL}"
-            buildConfigField "String", "NP6_TELEMETRY_API_URL", "${System.env.NP6_TELEMETRY_API_URL}"
+            buildConfigField "String", "NP6_SUBSCRIPION_API_URL", "\"${System.env.NP6_SUBSCRIPION_API_URL}\""
+            buildConfigField "String", "NP6_TELEMETRY_API_URL", "\"${System.env.NP6_TELEMETRY_API_URL}\""
 
         }
     }
