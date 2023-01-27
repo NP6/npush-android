@@ -1,0 +1,28 @@
+<resources>
+    <string name="app_name">NP6 Push</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment Homepage</string>
+    <string name="second_fragment_label">Second Fragment Homepage</string>
+    <string name="first_fragment_products_label">First Fragment Products</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="hello_first_fragment">Welcome to the main page!</string>
+    <string name="title_activity_login">Login </string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="invalid_username">Not a valid username</string>
+    <string name="invalid_password">Password must be >5 characters</string>
+    <string name="login_failed">"Login failed"</string>
+    <string name="products_list">Products list</string>
+    <string name="hello_products_list">Welcome to the products page!</string>
+    <string name="product_1">product 1</string>
+    <string name="product_2">product 2</string>
+    <string name="product_3">product 3</string>
+    <string name="hello_second_fragment">Hello second fragment</string>
+    <string name="title_activity_product1">Product1Activity</string>
+    <string name="title_activity_product2">Product2Activity</string>
+    <string name="title_activity_product3">Product3Activity</string>
+</resources>

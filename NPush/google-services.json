@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "626971079805",
+    "project_id": "np6-push",
+    "storage_bucket": "np6-push.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:626971079805:android:9a06f3143c8405250a2d14",
+        "android_client_info": {
+          "package_name": "com.np6.demo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "626971079805-kdv6ohsbitaids3qovnro2hn403mi4jb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAVDNDuZAkGHrhrQQLhmpsEhx1y7g3Yfxo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "626971079805-kdv6ohsbitaids3qovnro2hn403mi4jb.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "626971079805-c4rjrvfcieebb5fv88nit0lofg22gluv.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.np6.npush"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

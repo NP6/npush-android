@@ -1,0 +1,121 @@
+trigger:
+- dev
+- feature-*
+- release-*
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- task: JavaToolInstaller@0
+  inputs:
+    versionSpec: '11'
+    jdkArchitectureOption: 'x64'
+    jdkSourceOption: 'PreInstalled'
+
+- task: Gradle@2
+  inputs:
+    workingDirectory: ''
+    gradleWrapperFile: 'gradlew'
+    gradleOptions: '-Xmx3072m'
+    javaHomeOption: 'JDKVersion'
+    jdkVersionOption: '1.11'
+    jdkArchitectureOption: 'x64'
+    publishJUnitResults: true
+    testResultsFiles: '**/TEST-*.xml'
+    tasks: 'build'
+
+- task: Gradle@2
+  displayName: 'Assemble for Debug'
+  condition: or(and(succeeded(), startsWith(variables['Build.SourceBranchName'], 'feature-')), and(succeeded(), startsWith(variables['Build.SourceBranchName'], 'dev')))
+  inputs:
+    workingDirectory: ''
+    gradleWrapperFile: 'gradlew'
+    gradleOptions: '-Xmx3072m'
+    javaHomeOption: 'JDKVersion'
+    jdkVersionOption: '1.11'
+    jdkArchitectureOption: 'x64'
+    tasks: 'assembleDebug'
+
+- task: Gradle@2
+  displayName: 'Assemble for Release'
+  condition: and(succeeded(), startsWith(variables['Build.SourceBranchName'], 'release-'))
+  inputs:
+    workingDirectory: ''
+    gradleWrapperFile: 'gradlew'
+    gradleOptions: '-Xmx3072m'
+    javaHomeOption: 'JDKVersion'
+    jdkVersionOption: '1.11'
+    jdkArchitectureOption: 'x64'
+    tasks: 'assembleRelease'
+
+- task: CopyFiles@2
+  displayName: 'Copy debug application APK'
+  condition: or(and(succeeded(), startsWith(variables['Build.SourceBranchName'], 'feature-')), and(succeeded(), startsWith(variables['Build.SourceBranchName'], 'dev')))
+  inputs:
+    contents: '**/*debug*.apk'
+    targetFolder: '$(build.artifactStagingDirectory)'
+
+- task: CopyFiles@2
+  displayName: 'Copy debug SDK Library AAR'
+  condition: or(and(succeeded(), startsWith(variables['Build.SourceBranchName'], 'feature-')), and(succeeded(), startsWith(variables['Build.SourceBranchName'], 'dev')))
+  inputs:
+    contents: '**/*debug*.aar'
+    targetFolder: '$(build.artifactStagingDirectory)'
+
+- task: CopyFiles@2
+  displayName: 'Copy release application APK'
+  condition: and(succeeded(), startsWith(variables['Build.SourceBranchName'], 'release-'))
+  inputs:
+    contents: '**/*release*.apk'
+    targetFolder: '$(build.artifactStagingDirectory)'
+
+- task: CopyFiles@2
+  displayName: 'Copy release application APK'
+  condition: and(succeeded(), startsWith(variables['Build.SourceBranchName'], 'release-'))
+  inputs:
+    contents: '**/*release*.aar'
+    targetFolder: '$(build.artifactStagingDirectory)'
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish to Artifacts'
+
+- task: CmdLine@2
+  displayName: 'Install Firebase Tools'
+  inputs:
+    script: 'curl -sL firebase.tools | bash'
+    workingDirectory: '$(Agent.ToolsDirectory)'
+
+- task: CmdLine@2
+  displayName: 'Deploy debug application to Firebase'
+  condition: or(and(succeeded(), startsWith(variables['Build.SourceBranchName'], 'feature-')), and(succeeded(), startsWith(variables['Build.SourceBranchName'], 'dev')))
+  inputs:
+    script: |
+      firebase appdistribution:distribute demo/build/outputs/apk/debug/demo-debug.apk \
+      --app "$(FIREBASE_APPID)" \
+      --token "$(FIREBASE_TOKEN)" \
+      --release-notes "Release note"
+    workingDirectory: ''
+
+- task: CmdLine@2
+  displayName: 'Deploy release application to Firebase'
+  condition: and(succeeded(), startsWith(variables['Build.SourceBranchName'], 'release-'))
+  inputs:
+    script: |
+      firebase appdistribution:distribute demo/build/outputs/apk/release/demo-release-unsigned.apk \
+      --app "$(FIREBASE_APPID)" \
+      --token "$(FIREBASE_TOKEN)" \
+      --release-notes "Release note"
+    workingDirectory: ''
+
+- task: Gradle@2
+  displayName: 'publish SDK release'
+  condition: and(succeeded(), startsWith(variables['Build.SourceBranchName'], 'release-'))
+  inputs:
+    workingDirectory: ''
+    gradleWrapperFile: 'gradlew'
+    gradleOptions: '-Xmx3072m'
+    javaHomeOption: 'JDKVersion'
+    jdkVersionOption: '1.11'
+    jdkArchitectureOption: 'x64'
+    tasks: 'publish'
