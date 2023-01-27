@@ -8,7 +8,7 @@ apply plugin: 'maven-publish'
 
 
 def getArtificatId = { ->
-    return "npush"
+    return "NPush"
 }
 
 publishing {
@@ -16,7 +16,7 @@ publishing {
         bar(MavenPublication) {
             groupId 'com.np6.mobile'
             artifactId getArtificatId()
-            version "1.0.0"
+            version "0.0.1"
             artifact("$buildDir/outputs/aar/${getArtificatId()}-release.aar")
             pom.withXml {
                 def dependenciesNode = asNode().appendNode('dependencies')
