@@ -16,7 +16,7 @@ publishing {
         bar(MavenPublication) {
             groupId 'com.np6.mobile'
             artifactId getArtificatId()
-            version "0.0.1"
+            version "0.0.4"
             artifact("$buildDir/outputs/aar/${getArtificatId()}-release.aar")
             pom.withXml {
                 def dependenciesNode = asNode().appendNode('dependencies')
