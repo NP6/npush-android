@@ -8,7 +8,7 @@ apply plugin: 'maven-publish'
 
 
 def getArtificatId = { ->
-    return "npush"
+    return "NPush"
 }
 
 publishing {
