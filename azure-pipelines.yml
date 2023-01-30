@@ -107,14 +107,3 @@ steps:
       --release-notes "Release note"
     workingDirectory: ''
 
-- task: Gradle@2
-  displayName: 'publish SDK release'
-  condition: and(succeeded(), startsWith(variables['Build.SourceBranchName'], 'release'))
-  inputs:
-    workingDirectory: ''
-    gradleWrapperFile: 'gradlew'
-    gradleOptions: '-Xmx3072m'
-    javaHomeOption: 'JDKVersion'
-    jdkVersionOption: '1.11'
-    jdkArchitectureOption: 'x64'
-    tasks: 'publish'
