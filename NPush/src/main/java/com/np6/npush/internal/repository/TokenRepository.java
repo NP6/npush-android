@@ -23,8 +23,7 @@ public class TokenRepository implements Repository<String> {
 
     @Override
     public String Get() {
-            String token = this.storage.fetch(TOKEN_KEY);
-            return token;
+        return this.storage.fetch(TOKEN_KEY);
 
     }
 

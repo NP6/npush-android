@@ -47,29 +47,20 @@ public class Installation {
     }
 
 
-    public void subscribe(Linked linked, Completion<Subscription> completion) {
-        try  {
+    public Subscription subscribe(Linked linked) {
 
             String token = this.tokenRepository.Get();
 
             if (Objects.isNull(token))
                 throw new IllegalArgumentException("token is null");
 
-            Subscription subscription = new Subscription()
+            return new Subscription()
                     .setId(this.getIdentifer())
                     .setApplication(config.getApplication())
                     .setGateway(new Firebase(token))
                     .setLinked(linked)
                     .setProtocol("1.0.0")
                     .setCulture(Locale.getDefault().getLanguage());
-
-            SubscriptionApi api = new SubscriptionApi(config.getIdentity());
-
-            api.put(subscription, completion);
-
-        } catch (Exception exception) {
-            completion.onComplete(new Result.Error<>(exception));
-        }
     }
 
 

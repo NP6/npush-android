@@ -4,11 +4,13 @@ import static org.junit.Assert.assertEquals;
 
 import android.content.Context;
 
-import androidx.test.InstrumentationRegistry;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.UUID;
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -17,10 +19,15 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public class ExampleInstrumentedTest {
+
     @Test
     public void useAppContext() {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        assertEquals("com.np6.npush.test", appContext.getPackageName());
+        assertEquals("com.np6.demo", appContext.getPackageName());
     }
+
+
+
+
 }

@@ -45,11 +45,11 @@ publishing {
 }
 
 android {
-    compileSdk 32
+    compileSdk 33
     defaultConfig {
         multiDexEnabled true
         minSdk 19
-        targetSdk 32
+        targetSdk 33
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
     }
@@ -79,8 +79,6 @@ android {
         }
     }
     compileOptions {
-        coreLibraryDesugaringEnabled true
-
         targetCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
@@ -93,17 +91,15 @@ android {
 }
 
 dependencies {
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.0'
 
     implementation 'androidx.test:monitor:1.4.0'
-    implementation 'androidx.core:core:1.8.0'
+    implementation 'androidx.core:core:1.9.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.test:core:1.5.0'
 
     testImplementation 'junit:junit:4.13.2'
-    testImplementation 'org.mockito:mockito-core:3.3.3'
-    testImplementation 'org.robolectric:robolectric:4.8'
-
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    testImplementation 'org.robolectric:robolectric:4.9'
+    testImplementation "org.mockito:mockito-core:3.+"
 
     implementation(platform("com.squareup.okhttp3:okhttp-bom:4.9.3"))
     implementation("com.squareup.okhttp3:okhttp")
@@ -114,6 +110,11 @@ dependencies {
 
     implementation "androidx.startup:startup-runtime:1.1.1"
     implementation 'com.google.firebase:firebase-messaging:23.0.8'
+
+    implementation "com.google.guava:guava:31.0.1-android"
+
+    implementation "androidx.concurrent:concurrent-futures:1.1.0"
+
 
 
 

@@ -27,6 +27,7 @@ public class NotificationBuilder {
 
     NotificationCompat.Builder nativeBuilder;
 
+
     public NotificationBuilder(Context context, Config config) {
         this.context = context;
         this.nativeBuilder = new NotificationCompat.Builder(context, config.getDefaultChannel());

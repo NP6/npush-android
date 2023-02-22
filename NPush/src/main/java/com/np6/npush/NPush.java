@@ -2,11 +2,17 @@ package com.np6.npush;
 
 import android.content.Context;
 
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListenableFutureTask;
 import com.np6.npush.internal.Installation;
 import com.np6.npush.internal.Interaction;
 import com.np6.npush.internal.NotificationCenter;
+import com.np6.npush.internal.api.SubscriptionApi;
+import com.np6.npush.internal.core.Constants;
 import com.np6.npush.internal.core.Logger;
+import com.np6.npush.internal.core.concurrency.Concurrent;
 import com.np6.npush.internal.models.DeeplinkInterceptor;
+import com.np6.npush.internal.models.Subscription;
 import com.np6.npush.internal.models.action.TrackingAction;
 import com.np6.npush.internal.models.common.Result;
 import com.np6.npush.internal.models.contact.Linked;
@@ -18,6 +24,7 @@ import com.np6.npush.internal.repository.TokenRepository;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 public class NPush {
 
@@ -78,7 +85,6 @@ public class NPush {
         }
     }
 
-
     public synchronized void setContact(Context context, Linked linked) {
         try {
             if (Objects.isNull(context))
@@ -92,18 +98,21 @@ public class NPush {
             if (Objects.isNull(this.config))
                 throw new IllegalArgumentException("config must be specified");
 
-
-            Installation
+            Subscription subscription = Installation
                     .initialize(context, this.config)
-                    .subscribe(linked, result -> {
+                    .subscribe(linked);
 
-                        if (result instanceof Result.Error)
-                            Logger.Error(new Error<>(((Result.Error) result).exception));
+            SubscriptionApi api = new SubscriptionApi(this.config.getIdentity());
 
-                        if (result instanceof Result.Success) {
-                            Logger.Info(new Info<>("Subscription created successfully"));
-                        }
-                    });
+            api.put(subscription, (result) -> {
+                if (result instanceof Result.Error)
+                    Logger.Error(new Error<>(((Result.Error) result).exception));
+
+                if (result instanceof Result.Success) {
+                    Logger.Info(new Info<>("Subscription created successfully"));
+                }
+            });
+
         } catch (Exception exception) {
             Logger.Error(new Error<>(exception));
         }

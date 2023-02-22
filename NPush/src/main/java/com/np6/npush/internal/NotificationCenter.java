@@ -35,8 +35,13 @@ public class NotificationCenter {
 
     NotificationManager notificationManager;
 
+    NotificationManagerCompat notificationManagerCompat;
+
     public static NotificationCenter initialize(Context context, Config config) {
         if (Objects.isNull(context))
+            throw new IllegalArgumentException();
+
+        if (Objects.isNull(config))
             throw new IllegalArgumentException();
 
         return new NotificationCenter(context, config);
@@ -48,6 +53,7 @@ public class NotificationCenter {
         this.notificationManager = (NotificationManager)
                 context.getSystemService(Context.NOTIFICATION_SERVICE);
 
+        this.notificationManagerCompat = NotificationManagerCompat.from(context);
     }
 
     public static Notification fromRemoteMessage(Map<String, String> remoteMessage) throws JsonProcessingException {
@@ -57,14 +63,27 @@ public class NotificationCenter {
     public void submit(Notification notification, Completion<TrackingAction<String>> completion) {
         try  {
 
-            TrackingAction<String> action = notification.getTracking().getImpressionAction();
-
             android.app.Notification builtNotification = this.build(notification);
+
+            if (!isNotificationEnabled()) {
+                TrackingAction<String> bounceAction = notification.getTracking().getGlobalOptoutAction();
+                completion.onComplete(new Result.Success<>(bounceAction));
+                return;
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                if (isNotificationEnabled() && !isNotificationChannelEnabled(notification.getMeta().getChannelId())) {
+                    TrackingAction<String> bounceAction = notification.getTracking().getChannelOptoutAction();
+                    completion.onComplete(new Result.Success<>(bounceAction));
+                    return;
+                }
+            }
 
             this.notificationManager.notify(new Random().nextInt(), builtNotification);
 
-            completion.onComplete(
-                    new Result.Success<>(action));
+            TrackingAction<String> impressionAction = notification.getTracking().getImpressionAction();
+
+            completion.onComplete(new Result.Success<>(impressionAction));
         } catch (Exception exception) {
             completion.onComplete(new Result.Error<>(exception));
         }
@@ -106,23 +125,21 @@ public class NotificationCenter {
     }
 
 
-    public static boolean isNotificationEnabled(Context context) {
-        return NotificationManagerCompat.from(context).areNotificationsEnabled();
+    public boolean isNotificationEnabled() {
+        return this.notificationManagerCompat.areNotificationsEnabled();
     }
 
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public boolean isNotificationChannelEnabled(
-            Context context,
-            @Nullable String channelId) {
+    public boolean isNotificationChannelEnabled(@Nullable String channelId) {
 
-        NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        NotificationChannel channel = manager.getNotificationChannel(channelId);
-        if (channel != null) {
-            return channel.getImportance() != NotificationManager.IMPORTANCE_NONE;
-        } else {
-            return true;
+        NotificationChannel channel = this.notificationManager.getNotificationChannel(channelId);
+
+        if (channel == null) {
+            return false;
         }
+
+        return channel.getImportance() != NotificationManager.IMPORTANCE_NONE;
     }
 
 }
