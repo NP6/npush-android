@@ -74,10 +74,11 @@ public class NPush {
                         if (result instanceof Result.Error)
                             Logger.Error(new Error<>(((Result.Error) result).exception));
 
-                        if (result instanceof Result.Success)
+                        if (result instanceof Result.Success) {
                             TokenRepository
                                     .Create(context)
                                     .Add(((Result.Success<String>) result).data);
+                        }
                             Logger.Info(new Info<>("Token generate succeed "));
                     }));
         } catch (Exception exception) {

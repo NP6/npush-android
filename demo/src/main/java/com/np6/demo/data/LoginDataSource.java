@@ -29,7 +29,7 @@ public class LoginDataSource {
             OkHttpClient client = new OkHttpClient();
             try {
 
-                NPush.Instance().setContact(context, new ContactHash("f27c1c1dfe0895d1ed11288b2f41c98c"));
+                NPush.Instance().setContact(context, new ContactHash("d4790c65207479aaf6d9869fa86dd3d3"));
 
                 LoggedInUser fakeUser =
                         new LoggedInUser(
