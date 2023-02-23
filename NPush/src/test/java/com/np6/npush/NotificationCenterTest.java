@@ -21,13 +21,13 @@ public class NotificationCenterTest {
     Context context = ApplicationProvider.getApplicationContext();
 
 
-    public Map<String, String> getValidRemoteMessage() {
-
-        Map<String, String> remoteMessage = new HashMap<>();
-
-        remoteMessage.put("meta", "");
-
-    }
+//    public Map<String, String> getValidRemoteMessage() {
+//
+//        Map<String, String> remoteMessage = new HashMap<>();
+//
+//        remoteMessage.put("meta", "");
+//
+//    }
 
     @Test
     public void initializationWithNullParameters() {

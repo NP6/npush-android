@@ -67,7 +67,7 @@ public class InstallationTest {
     }
 
     @Test
-    public void CheckSubscription() throws JsonProcessingException {
+    public void CheckSubscription() {
 
 //        String expectedSubscription =
 //                "{\"id\":\"12345678-1234-1234-1234-123456789abc\"," +

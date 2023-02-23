@@ -19,5 +19,4 @@ public class Interaction {
             completion.onComplete(new Result.Error<>(exception));
         }
     }
-
 }

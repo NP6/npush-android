@@ -6,6 +6,7 @@ import com.np6.npush.internal.core.Constants;
 import com.np6.npush.internal.core.persistence.SharedPreferenceStorage;
 import com.np6.npush.internal.core.persistence.Storage;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public class IdentifierRepository implements Repository<UUID> {
@@ -26,8 +27,16 @@ public class IdentifierRepository implements Repository<UUID> {
     public UUID Get() {
             String value = this.storage.fetch(IDENTIFIER_KEY);
 
-            return UUID.fromString(value);
+            /*
+            *TODO :
+            * Throw IllegalArgumentException if value is null ?
+            * Case happen if we call Remove() and then Get()
+            */
+            if (Objects.isNull(value)) {
+                return null;
+            }
 
+            return UUID.fromString(value);
     }
 
     @Override
