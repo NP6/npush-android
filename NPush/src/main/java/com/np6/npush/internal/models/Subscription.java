@@ -3,6 +3,7 @@ package com.np6.npush.internal.models;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.np6.npush.internal.models.contact.Linked;
+import com.np6.npush.internal.models.gateway.Firebase;
 import com.np6.npush.internal.models.gateway.Gateway;
 
 import java.util.UUID;
@@ -46,6 +47,7 @@ public class Subscription {
         return this;
     }
 
+
     public Subscription setApplication(UUID application) {
         this.application = application;
         return this;
@@ -70,4 +72,12 @@ public class Subscription {
         this.gateway = gateway;
         return this;
     }
+
+    public UUID getId() { return id; }
+    public UUID getApplication() { return application; }
+    public String getCulture() { return culture; }
+    public String getProtocol() { return protocol; }
+    public Linked getLinked() { return linked; }
+    public String getGateway() { return ((Firebase) gateway).token; }
+
 }
