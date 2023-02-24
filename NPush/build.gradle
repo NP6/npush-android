@@ -56,16 +56,15 @@ android {
 
     buildTypes {
         debug {
-            buildConfigField "String", "NP6_SUBSCRIPION_API_URL", NP6_SUBSCRIPION_API_URL
-            buildConfigField "String", "NP6_TELEMETRY_API_URL", NP6_TELEMETRY_API_URL
+            buildConfigField "String", "NP6_SUBSCRIPION_API_URL", "https://cm-push.kube.dev.np6.com/api/v1.0/"
+            buildConfigField "String", "NP6_TELEMETRY_API_URL", "https://telemetry.kube.dev.np6.com/api/v1.0/"
         }
         release {
             minifyEnabled true
             shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            buildConfigField "String", "NP6_SUBSCRIPION_API_URL", "\"${System.env.NP6_SUBSCRIPION_API_URL}\""
-            buildConfigField "String", "NP6_TELEMETRY_API_URL", "\"${System.env.NP6_TELEMETRY_API_URL}\""
-
+            buildConfigField "String", "NP6_SUBSCRIPION_API_URL", "https://subscriptions.np6.com/api/v1.0/"
+            buildConfigField "String", "NP6_TELEMETRY_API_URL", "https://telemetry.np6.com/api/v1.0/"
         }
     }
 
@@ -100,6 +99,7 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.robolectric:robolectric:4.9'
     testImplementation "org.mockito:mockito-core:3.+"
+    testImplementation 'com.github.gmazzo:okhttp-mock:1.5.0'
 
     implementation(platform("com.squareup.okhttp3:okhttp-bom:4.9.3"))
     implementation("com.squareup.okhttp3:okhttp")
@@ -110,11 +110,7 @@ dependencies {
 
     implementation "androidx.startup:startup-runtime:1.1.1"
     implementation 'com.google.firebase:firebase-messaging:23.0.8'
-
-    implementation "com.google.guava:guava:31.0.1-android"
-
-    implementation "androidx.concurrent:concurrent-futures:1.1.0"
-
+    implementation("net.sourceforge.streamsupport:android-retrofuture:1.7.4")
 
 
 

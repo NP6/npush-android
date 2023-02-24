@@ -2,8 +2,6 @@ package com.np6.npush;
 
 import android.content.Context;
 
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListenableFutureTask;
 import com.np6.npush.internal.Installation;
 import com.np6.npush.internal.Interaction;
 import com.np6.npush.internal.NotificationCenter;
@@ -11,6 +9,8 @@ import com.np6.npush.internal.api.SubscriptionApi;
 import com.np6.npush.internal.core.Constants;
 import com.np6.npush.internal.core.Logger;
 import com.np6.npush.internal.core.concurrency.Concurrent;
+import com.np6.npush.internal.core.network.HttpClient;
+import com.np6.npush.internal.core.network.driver.Driver;
 import com.np6.npush.internal.models.DeeplinkInterceptor;
 import com.np6.npush.internal.models.Subscription;
 import com.np6.npush.internal.models.action.TrackingAction;
@@ -26,6 +26,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
+import okhttp3.OkHttpClient;
+
 public class NPush {
 
     private static NPush instance;
@@ -34,7 +36,8 @@ public class NPush {
 
     public DeeplinkInterceptor interceptor;
 
-    private NPush() { }
+    private NPush() {
+    }
 
     public Config getConfig() {
         return config;
@@ -78,7 +81,7 @@ public class NPush {
                             TokenRepository
                                     .Create(context)
                                     .Add(((Result.Success<String>) result).data);
-                            Logger.Info(new Info<>("Token generate succeed "));
+                        Logger.Info(new Info<>("Token generate succeed "));
                     }));
         } catch (Exception exception) {
             Logger.Error(new Error<>(exception));
@@ -98,20 +101,20 @@ public class NPush {
             if (Objects.isNull(this.config))
                 throw new IllegalArgumentException("config must be specified");
 
-            Subscription subscription = Installation
+            final Subscription subscription = Installation
                     .initialize(context, this.config)
                     .subscribe(linked);
 
-            SubscriptionApi api = new SubscriptionApi(this.config.getIdentity());
+            SubscriptionApi
+                    .create(this.config.getIdentity())
+                    .put(subscription, (result) -> {
+                        if (result instanceof Result.Error)
+                            Logger.Error(new Error<>(((Result.Error) result).exception));
 
-            api.put(subscription, (result) -> {
-                if (result instanceof Result.Error)
-                    Logger.Error(new Error<>(((Result.Error) result).exception));
-
-                if (result instanceof Result.Success) {
-                    Logger.Info(new Info<>("Subscription created successfully"));
-                }
-            });
+                        if (result instanceof Result.Success) {
+                            Logger.Info(new Info<>("Subscription created successfully"));
+                        }
+                    });
 
         } catch (Exception exception) {
             Logger.Error(new Error<>(exception));

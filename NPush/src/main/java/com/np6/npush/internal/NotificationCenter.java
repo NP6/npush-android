@@ -89,7 +89,7 @@ public class NotificationCenter {
         }
     }
 
-    private android.app.Notification build(final Notification notification) throws Exception {
+    public android.app.Notification build(final Notification notification) throws Exception {
 
         this.builder
                 .SetContent(notification.getRender().title, notification.getRender().body)
@@ -110,7 +110,7 @@ public class NotificationCenter {
         return this.builder.build();
     }
 
-    private static Notification parse(Map<String, String> remoteMessage) throws JsonProcessingException {
+    public static Notification parse(Map<String, String> remoteMessage) throws JsonProcessingException {
 
         Serializer serializer = new Serializer();
 

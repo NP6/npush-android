@@ -15,18 +15,18 @@ public class InteractionApi {
 
     private Driver driver;
 
-    public InteractionApi(String radical) {
-        this.driver = new Driver(radical);
+    public InteractionApi(Driver driver) {
+        this.driver = driver;
     }
 
 
-    public void get(String resource, Completion<Object> completion) {
+    public void get(String radical, String resource, Completion<Object> completion) {
         Concurrent.Shared.executor.submit(() -> {
 
             try {
                 Request request = new Request.Builder()
                         .addHeader("Content-Type", "application/json")
-                        .url(this.driver.getEndpoint() + resource)
+                        .url(radical + resource)
                         .build();
 
                 Response response = this.driver

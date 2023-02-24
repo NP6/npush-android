@@ -20,12 +20,14 @@ import com.np6.npush.internal.system.TransparentActivity;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class NotificationBuilder {
 
     private Context context;
 
     NotificationCompat.Builder nativeBuilder;
+
 
 
     public NotificationBuilder(Context context, Config config) {
@@ -35,6 +37,15 @@ public class NotificationBuilder {
     }
 
     public NotificationBuilder SetContent(String title, String body) {
+
+        if (Objects.isNull(title) || title.isEmpty()) {
+            throw new IllegalArgumentException();
+        }
+
+        if (Objects.isNull(body) || body.isEmpty()) {
+            throw new IllegalArgumentException();
+        }
+
         this.nativeBuilder
                 .setContentText(body)
                 .setContentTitle(title)
