@@ -56,8 +56,8 @@ android {
 
     buildTypes {
         debug {
-            buildConfigField "String", "NP6_SUBSCRIPION_API_URL", "https://cm-push.kube.dev.np6.com/api/v1.0/"
-            buildConfigField "String", "NP6_TELEMETRY_API_URL", "https://telemetry.kube.dev.np6.com/api/v1.0/"
+            buildConfigField "String", "NP6_SUBSCRIPION_API_URL", "\"https://cm-push.kube.dev.np6.com/api/v1.0/\""
+            buildConfigField "String", "NP6_TELEMETRY_API_URL", "\"https://telemetry.kube.dev.np6.com/api/v1.0/\""
         }
         release {
             minifyEnabled true

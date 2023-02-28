@@ -76,7 +76,7 @@ public class NotificationCenterTest {
                 "\"redirection\": \"app://npush/product3\" " +
                 "}");
 
-        remoteMessage.put("render", "{ \"title\": \"tutu\", \"body\": \"tutu \" }");
+        remoteMessage.put("render", "{ \"title\": \"tutu\", \"body\": \"tutu\" }");
 
         remoteMessage.put("tracking", "{ " +
                 "\"radical\": \"https://tracking.dev.np6.com/hit/MCOM/032/gz/eXXS70LQkWREN8MQmEdwi7MkJJWsLJcHG-h1Ho296ydkZ0l7f-okL-f60G0s-_LaTAH3d938ga3fafOkGyM-nM7tGGjfXaYQBxXMS4NTTvgMxzDaEcfkf4aznw6lFxebZhoknKhuygNOzhEklqwoUFj9M0WXegDR3oWHK6QbGkyzFJznv47fCB5rMu63PJTgeVM58QLwZbMW3A30nM7zq6kZBCgSFi5byAak41hGyDK397iZOdt91X2vVfIZUJlwNwZiX5WSvWrztvSngIex-Y9nyL_o2tC0GDpCEZYhW8SNKumYSS7e7oN36qRbeErPQKp0qx6NyKxQEvUdJwB31JDgwC0ugKGKRoLxqjg4qH8Im-n0hdJG24mTPfyMvvWXEBQm_ZPOdUC8ej9rC7DyyVqkKTnCeYV1b2zzEyn_RO_g-uvamn0uTmsP1hN1KbxvcmH7RHX7yYJwjSK7-j5DC6sGf70aQrk90kjsjpCNeYFz6fGVFev8g0NJrxfcGSGSgHrS7yU8u-_zs58e_TXK23oGXcfI_Q8TmhSoyStu-ycySvfX6Y9Oq8oCk1jspofa4N5I/link/\", " +
@@ -148,7 +148,7 @@ public class NotificationCenterTest {
                 .build(notification);
 
 
-        assertEquals("tutu", buildNotification.extras.getString("android.body"));
+        assertEquals("tutu", buildNotification.extras.get("android.text"));
 
     }
 

@@ -19,6 +19,7 @@ import com.np6.npush.internal.models.common.Result;
 import com.np6.npush.internal.models.gateway.Firebase;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
@@ -44,6 +45,8 @@ public class SubscriptionApiTest {
 
     }
 
+    @Ignore
+    @Test
     public void putSubscriptionWithoutHttpError() throws InterruptedException {
         MockInterceptor interceptor = new MockInterceptor();
 
