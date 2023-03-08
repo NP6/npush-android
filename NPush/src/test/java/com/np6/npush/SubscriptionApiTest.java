@@ -23,6 +23,7 @@ import com.np6.npush.internal.models.gateway.Firebase;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
@@ -51,6 +52,7 @@ public class SubscriptionApiTest {
 
     }
 
+<<<<<<< HEAD
     @Test(expected = IllegalArgumentException.class)
     public void initializeSubscriptionApiWithoutIdentity() {
         SubscriptionApi.create(null);
@@ -58,6 +60,11 @@ public class SubscriptionApiTest {
 
     @Test
     public void putSubscriptionWithBadRequestHttpError() throws InterruptedException, JsonProcessingException, ExecutionException {
+=======
+    @Ignore
+    @Test
+    public void putSubscriptionWithoutHttpError() throws InterruptedException {
+>>>>>>> fc3dd14e326373b3d74a7502d60ed1b3fc380deb
         MockInterceptor interceptor = new MockInterceptor();
 
         interceptor.addRule(new Rule.Builder()
