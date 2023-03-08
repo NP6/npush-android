@@ -15,7 +15,7 @@ public class IdentifierRepository implements Repository<UUID> {
 
     private final Storage storage;
 
-    public static IdentifierRepository Create(Context context) {
+    public static IdentifierRepository create(Context context) {
         return new IdentifierRepository(context);
     }
 

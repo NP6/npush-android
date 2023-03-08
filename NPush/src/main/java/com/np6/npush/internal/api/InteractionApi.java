@@ -1,50 +1,67 @@
 package com.np6.npush.internal.api;
 
+import androidx.annotation.NonNull;
+
+import com.np6.npush.internal.core.Serializer;
 import com.np6.npush.internal.core.concurrency.Concurrent;
+import com.np6.npush.internal.core.network.HttpClient;
 import com.np6.npush.internal.core.network.driver.Driver;
 import com.np6.npush.internal.models.common.Completion;
 import com.np6.npush.internal.models.common.Result;
 
+import java.io.IOException;
 import java.util.Objects;
 
+import java9.util.concurrent.CompletableFuture;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class InteractionApi {
 
 
-    private Driver driver;
+    private final Driver driver;
 
     public InteractionApi(Driver driver) {
         this.driver = driver;
     }
 
+    public static InteractionApi create() {
 
-    public void get(String radical, String resource, Completion<Object> completion) {
-        Concurrent.Shared.executor.submit(() -> {
+        Driver driver = new Driver(HttpClient.Create());
 
-            try {
-                Request request = new Request.Builder()
-                        .addHeader("Content-Type", "application/json")
-                        .url(radical + resource)
-                        .build();
+        return new InteractionApi(driver);
+    }
 
-                Response response = this.driver
-                        .getClient()
-                        .newCall(request)
-                        .execute();
 
-                if (!response.isSuccessful()) {
-                    String message = "HTTP request failed - Status code :  " +
-                            response.code()  + " - response : " + Objects.requireNonNull(response.body()).string();
-                    throw new Exception(message);
-                }
+    public CompletableFuture<Response> get(String radical, String resource) {
+        CompletableFuture<Response> future = new CompletableFuture<>();
 
-                completion.onComplete(new Result.Success<>(new Object()));
+        try {
+            Request request = new Request.Builder()
+                    .url(radical + resource)
+                    .build();
 
-            } catch (Exception exception) {
-                completion.onComplete(new Result.Error<>(exception));
-            }
-        });
+            this.driver
+                    .getClient()
+                    .newCall(request)
+                    .enqueue(new Callback() {
+                        @Override
+                        public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                            future.completeExceptionally(e);
+                        }
+
+                        @Override
+                        public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                            future.complete(response);
+                        }
+                    });
+        } catch (Exception exception) {
+            future.completeExceptionally(exception);
+        }
+        return future;
     }
 }

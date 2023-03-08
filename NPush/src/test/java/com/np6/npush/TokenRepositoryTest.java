@@ -27,21 +27,21 @@ public class TokenRepositoryTest {
 
     @Test
     public void AddValueToRepository() {
-        TokenRepository repository = TokenRepository.Create(context);
+        TokenRepository repository = TokenRepository.create(context);
         repository.Add(token);
         assertEquals(token, repository.Get());
     }
 
     @Test
     public void DeleteValueFromRepository() {
-        TokenRepository repository = TokenRepository.Create(context);
+        TokenRepository repository = TokenRepository.create(context);
         repository.Remove();
         assertNull(repository.Get());
     }
 
     @Test
     public void CheckIfValueExistFromRepository() {
-        TokenRepository repository = TokenRepository.Create(context);
+        TokenRepository repository = TokenRepository.create(context);
         repository.Add(token);
         assertTrue(repository.Exist());
     }

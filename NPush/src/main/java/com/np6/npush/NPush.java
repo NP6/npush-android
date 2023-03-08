@@ -3,14 +3,10 @@ package com.np6.npush;
 import android.content.Context;
 
 import com.np6.npush.internal.Installation;
-import com.np6.npush.internal.Interaction;
 import com.np6.npush.internal.NotificationCenter;
+import com.np6.npush.internal.api.InteractionApi;
 import com.np6.npush.internal.api.SubscriptionApi;
-import com.np6.npush.internal.core.Constants;
 import com.np6.npush.internal.core.Logger;
-import com.np6.npush.internal.core.concurrency.Concurrent;
-import com.np6.npush.internal.core.network.HttpClient;
-import com.np6.npush.internal.core.network.driver.Driver;
 import com.np6.npush.internal.models.DeeplinkInterceptor;
 import com.np6.npush.internal.models.Subscription;
 import com.np6.npush.internal.models.action.TrackingAction;
@@ -24,9 +20,6 @@ import com.np6.npush.internal.repository.TokenRepository;
 
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-
-import okhttp3.OkHttpClient;
 
 public class NPush {
 
@@ -79,7 +72,7 @@ public class NPush {
 
                         if (result instanceof Result.Success)
                             TokenRepository
-                                    .Create(context)
+                                    .create(context)
                                     .Add(((Result.Success<String>) result).data);
                         Logger.Info(new Info<>("Token generate succeed "));
                     }));
@@ -101,20 +94,27 @@ public class NPush {
             if (Objects.isNull(this.config))
                 throw new IllegalArgumentException("config must be specified");
 
-            final Subscription subscription = Installation
+
+            Subscription subscription = Installation
                     .initialize(context, this.config)
-                    .subscribe(linked);
+                    .subscribe(linked)
+                    .get();
 
             SubscriptionApi
                     .create(this.config.getIdentity())
-                    .put(subscription, (result) -> {
-                        if (result instanceof Result.Error)
-                            Logger.Error(new Error<>(((Result.Error) result).exception));
-
-                        if (result instanceof Result.Success) {
+                    .put(subscription)
+                    .thenAccept(response -> {
+                        if (response.isSuccessful()) {
                             Logger.Info(new Info<>("Subscription created successfully"));
+                            return;
                         }
-                    });
+                        Logger.Error(new Error<>("Subscription creation failed with - status code  : " + response.code()));
+
+                    }).exceptionally((throwable -> {
+                        Logger.Error(new Error<>(throwable));
+                        return null;
+                    }));
+
 
         } catch (Exception exception) {
             Logger.Error(new Error<>(exception));
@@ -135,28 +135,27 @@ public class NPush {
 
             Notification notification = NotificationCenter.fromRemoteMessage(remoteData);
 
-
-            NotificationCenter
+            TrackingAction<String> action = NotificationCenter
                     .initialize(context, this.config)
-                    .submit(notification, (result) -> {
+                    .submit(notification)
+                    .get();
 
-                        if (result instanceof Result.Error)
-                            Logger.Error(new Error<>(((Result.Error) result).exception));
+            InteractionApi interactionApi = InteractionApi.create();
 
-                        if (result instanceof Result.Success) {
-
-                            TrackingAction<String> action = ((Result.Success<TrackingAction<String>>) result).data;
-
-                            Interaction.handle(action, (actionResult) -> {
-                                if (actionResult instanceof Result.Error)
-                                    Logger.Error(new Error<>(((Result.Error) result).exception));
-
-                                if (actionResult instanceof Result.Success)
-                                    Logger.Info(new Info<>("action tracked successfully"));
-
-                            });
+            interactionApi
+                    .get(action.getRadical(), action.getValue())
+                    .thenAccept(response -> {
+                        if (response.isSuccessful()) {
+                            Logger.Info(new Info<>("Action tracked successfully "));
+                            return;
                         }
-                    });
+                        Logger.Error(new Error<>("Action tracking failed - status code : " + response.code()));
+
+                    }).exceptionally((throwable -> {
+                        Logger.Error(new Error<>(throwable));
+                        return null;
+                    }));
+
         } catch (Exception exception) {
             Logger.Error(new Error<>(exception));
         }

@@ -28,11 +28,16 @@ public class NotificationBuilder {
 
     NotificationCompat.Builder nativeBuilder;
 
+    public static NotificationBuilder create(Context context, Config config) {
 
+        NotificationCompat.Builder nativeBuilder = new NotificationCompat.Builder(context, config.getDefaultChannel());
 
-    public NotificationBuilder(Context context, Config config) {
+        return new NotificationBuilder(context, nativeBuilder);
+    }
+
+    public NotificationBuilder(Context context, NotificationCompat.Builder nativeBuilder) {
         this.context = context;
-        this.nativeBuilder = new NotificationCompat.Builder(context, config.getDefaultChannel());
+        this.nativeBuilder = nativeBuilder;
         this.nativeBuilder.setAutoCancel(true);
     }
 
@@ -92,6 +97,7 @@ public class NotificationBuilder {
 
         Intent dismissIntent = IntentHelper.CreateIntent(context, Constants.Intent.INTENT_DISMISS_INTENT, ActionBroadcastReceiver.class, data);
         PendingIntent dismissPendingIntent = IntentHelper.CreatePendingBroadcastIntent(context, dismissIntent);
+
         this.nativeBuilder.setDeleteIntent(dismissPendingIntent);
 
         return this;

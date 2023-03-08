@@ -13,7 +13,7 @@ public class TokenRepository implements Repository<String> {
 
     private final Storage storage;
 
-    public static TokenRepository Create(Context context) {
+    public static TokenRepository create(Context context) {
         return new TokenRepository(context);
     }
 

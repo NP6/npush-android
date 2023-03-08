@@ -3,8 +3,10 @@ package com.np6.npush.internal.api;
 
 import android.os.Build;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.np6.npush.internal.core.Constants;
 import com.np6.npush.internal.core.Serializer;
 import com.np6.npush.internal.core.concurrency.Concurrent;
@@ -15,9 +17,12 @@ import com.np6.npush.internal.models.common.Completion;
 import com.np6.npush.internal.models.common.Result;
 
 
+import java.io.IOException;
 import java.util.Objects;
 
 import java9.util.concurrent.CompletableFuture;
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -26,7 +31,7 @@ import okhttp3.Response;
 
 public class SubscriptionApi {
 
-    private Driver driver;
+    private final Driver driver;
 
     private final String basePath;
 
@@ -46,6 +51,45 @@ public class SubscriptionApi {
         Driver driver = new Driver(HttpClient.Create());
 
         return new SubscriptionApi(identity, driver);
+    }
+
+    public CompletableFuture<Response> put(final Subscription subscription) {
+
+        CompletableFuture<Response> future = new CompletableFuture<>();
+
+        try {
+            Serializer serializer = new Serializer();
+            String payload = serializer.serialize(subscription);
+
+            RequestBody body = RequestBody.create(
+                    payload,
+                    MediaType.parse("application/json")
+            );
+
+            Request request = new Request.Builder()
+                    .put(body)
+                    .addHeader("Content-Type", "application/json")
+                    .url(this.basePath)
+                    .build();
+
+            this.driver
+                    .getClient()
+                    .newCall(request)
+                    .enqueue(new Callback() {
+                        @Override
+                        public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                            future.completeExceptionally(e);
+                        }
+
+                        @Override
+                        public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                            future.complete(response);
+                        }
+                    });
+        } catch (Exception exception) {
+            future.completeExceptionally(exception);
+        }
+        return future;
     }
 
     public void put(final Subscription subscription, final Completion<Subscription> completion) {

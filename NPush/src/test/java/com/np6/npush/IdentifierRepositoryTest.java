@@ -20,7 +20,6 @@ import org.robolectric.annotation.Config;
 import java.util.UUID;
 
 @Config(sdk = {30})
-@RunWith(RobolectricTestRunner.class)
 public class IdentifierRepositoryTest {
 
     private static Context context;
@@ -34,21 +33,21 @@ public class IdentifierRepositoryTest {
 
     @Test
     public void AddValueToRepository() {
-        IdentifierRepository repository = IdentifierRepository.Create(context);
+        IdentifierRepository repository = IdentifierRepository.create(context);
         repository.Add(identifier);
         assertEquals(identifier, repository.Get());
     }
 
     @Test
     public void DeleteValueFromRepository() {
-        IdentifierRepository repository = IdentifierRepository.Create(context);
+        IdentifierRepository repository = IdentifierRepository.create(context);
         repository.Remove();
         assertNull(repository.Get());
     }
 
     @Test
     public void CheckIfValueExistFromRepository() {
-        IdentifierRepository repository = IdentifierRepository.Create(context);
+        IdentifierRepository repository = IdentifierRepository.create(context);
         repository.Add(identifier);
         assertTrue(repository.Exist());
     }

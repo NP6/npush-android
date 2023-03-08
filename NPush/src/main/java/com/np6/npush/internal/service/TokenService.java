@@ -19,7 +19,7 @@ public class TokenService {
     }
 
     private TokenService(Context context) {
-        this.repository = TokenRepository.Create(context);
+        this.repository = TokenRepository.create(context);
     }
 
     public String Get() {

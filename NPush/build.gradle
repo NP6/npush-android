@@ -56,15 +56,16 @@ android {
 
     buildTypes {
         debug {
-            buildConfigField "String", "NP6_SUBSCRIPION_API_URL", "https://cm-push.kube.dev.np6.com/api/v1.0/"
-            buildConfigField "String", "NP6_TELEMETRY_API_URL", "https://telemetry.kube.dev.np6.com/api/v1.0/"
+            buildConfigField "String", "NP6_SUBSCRIPION_API_URL", "\"https://cm-push.kube.dev.np6.com/api/v1.0/\""
+            buildConfigField "String", "NP6_TELEMETRY_API_URL", "\"https://telemetry.kube.dev.np6.com/api/v1.0\""
         }
         release {
             minifyEnabled true
             shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            buildConfigField "String", "NP6_SUBSCRIPION_API_URL", "https://subscriptions.np6.com/api/v1.0/"
-            buildConfigField "String", "NP6_TELEMETRY_API_URL", "https://telemetry.np6.com/api/v1.0/"
+
+            buildConfigField "String", "NP6_SUBSCRIPION_API_URL", "\"https://subscriptions.np6.com/api/v1.0/\""
+            buildConfigField "String", "NP6_TELEMETRY_API_URL", "\"https://telemetry.np6.com/api/v1.0/\""
         }
     }
 
@@ -95,6 +96,7 @@ dependencies {
     implementation 'androidx.core:core:1.9.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.test:core:1.5.0'
+    implementation 'androidx.test.ext:junit:1.1.5'
 
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.robolectric:robolectric:4.9'

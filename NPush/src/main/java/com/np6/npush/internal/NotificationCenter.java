@@ -26,6 +26,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 
+import java9.util.concurrent.CompletableFuture;
+
 public class NotificationCenter {
 
 
@@ -44,38 +46,46 @@ public class NotificationCenter {
         if (Objects.isNull(config))
             throw new IllegalArgumentException();
 
-        return new NotificationCenter(context, config);
-    }
+        NotificationBuilder notificationBuilder = NotificationBuilder.create(context, config);
 
-    private NotificationCenter(Context context, Config config) {
-        this.builder = new NotificationBuilder(context, config);
-        this.config = config;
-        this.notificationManager = (NotificationManager)
+        NotificationManager notificationManager = (NotificationManager)
                 context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        this.notificationManagerCompat = NotificationManagerCompat.from(context);
+        NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
+
+        return new NotificationCenter( config, notificationBuilder, notificationManager, notificationManagerCompat);
+    }
+
+    public NotificationCenter(
+            Config config,
+            NotificationBuilder notificationBuilder,
+            NotificationManager notificationManager,
+            NotificationManagerCompat notificationManagerCompat)
+    {
+        this.builder = notificationBuilder;
+        this.config = config;
+        this.notificationManager = notificationManager;
+        this.notificationManagerCompat = notificationManagerCompat;
     }
 
     public static Notification fromRemoteMessage(Map<String, String> remoteMessage) throws JsonProcessingException {
         return parse(remoteMessage);
     }
 
-    public void submit(Notification notification, Completion<TrackingAction<String>> completion) {
+    public CompletableFuture<TrackingAction<String>> submit(Notification notification) {
         try  {
 
             android.app.Notification builtNotification = this.build(notification);
 
             if (!isNotificationEnabled()) {
                 TrackingAction<String> bounceAction = notification.getTracking().getGlobalOptoutAction();
-                completion.onComplete(new Result.Success<>(bounceAction));
-                return;
+                return CompletableFuture.completedFuture(bounceAction);
             }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 if (isNotificationEnabled() && !isNotificationChannelEnabled(notification.getMeta().getChannelId())) {
                     TrackingAction<String> bounceAction = notification.getTracking().getChannelOptoutAction();
-                    completion.onComplete(new Result.Success<>(bounceAction));
-                    return;
+                    return CompletableFuture.completedFuture(bounceAction);
                 }
             }
 
@@ -83,9 +93,9 @@ public class NotificationCenter {
 
             TrackingAction<String> impressionAction = notification.getTracking().getImpressionAction();
 
-            completion.onComplete(new Result.Success<>(impressionAction));
+            return CompletableFuture.completedFuture(impressionAction);
         } catch (Exception exception) {
-            completion.onComplete(new Result.Error<>(exception));
+            return CompletableFuture.failedFuture(exception);
         }
     }
 

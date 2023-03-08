@@ -20,7 +20,7 @@ public class IdentifierService {
     }
 
     private IdentifierService(Context context) {
-        this.repository = IdentifierRepository.Create(context);
+        this.repository = IdentifierRepository.create(context);
     }
 
     public UUID FetchRepository() {

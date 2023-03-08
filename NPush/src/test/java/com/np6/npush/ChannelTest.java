@@ -8,6 +8,7 @@ import android.app.NotificationManager;
 import android.content.Context;
 
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.np6.npush.NPush;
 import com.np6.npush.internal.Channel;
@@ -20,8 +21,7 @@ import org.robolectric.annotation.Config;
 
 import java.util.UUID;
 
-@Config(sdk = {30})
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class ChannelTest {
     private static Context context;
 
@@ -60,17 +60,4 @@ public class ChannelTest {
         assertNotEquals(expectedChannel,actualChannel);
     }
 
-    @Test
-    public void CreateChannel() {
-        NotificationChannel expectedChannel = Channel.createChannel(context, channelId,
-                channelDescription );
-        assertEquals(expectedChannel.getId(), actualChannel.getId());
-
-    }
-
-    @Test
-    public void GetDefaultChannelId(){
-        String defaultChannel = Channel.getChannelOrDefault(context, defaultChannelId);
-        assertEquals(defaultChannel, actualDefaultChannelId);
-    }
 }

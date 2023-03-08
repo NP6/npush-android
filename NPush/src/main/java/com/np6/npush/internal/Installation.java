@@ -1,23 +1,19 @@
 package com.np6.npush.internal;
 
 import android.content.Context;
-import android.os.Build;
 
 import com.np6.npush.Config;
-import com.np6.npush.internal.api.Api;
-import com.np6.npush.internal.api.SubscriptionApi;
 import com.np6.npush.internal.models.Subscription;
-import com.np6.npush.internal.models.common.Completion;
-import com.np6.npush.internal.models.common.Result;
 import com.np6.npush.internal.models.contact.Linked;
 import com.np6.npush.internal.models.gateway.Firebase;
 import com.np6.npush.internal.repository.IdentifierRepository;
 import com.np6.npush.internal.repository.TokenRepository;
 
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+
+import java9.util.concurrent.CompletableFuture;
 
 public class Installation {
 
@@ -37,34 +33,52 @@ public class Installation {
             throw new IllegalArgumentException();
         }
 
-        return new Installation(context, config);
+        TokenRepository tokenRepository = TokenRepository.create(context);
+
+        IdentifierRepository identifierRepository = IdentifierRepository.create(context);
+
+        return new Installation(config, tokenRepository, identifierRepository);
     }
 
-    private Installation(Context context, Config config) {
+    public Installation(
+            Config config,
+            TokenRepository tokenRepository,
+            IdentifierRepository identifierRepository)
+    {
         this.config = config;
-        this.tokenRepository = TokenRepository.Create(context);
-        this.identifierRepository = IdentifierRepository.Create(context);
+        this.tokenRepository = tokenRepository;
+        this.identifierRepository = identifierRepository;
     }
 
 
-    public Subscription subscribe(Linked linked) {
+    public CompletableFuture<Subscription> subscribe(Linked linked) {
+
+        try {
+            if (Objects.isNull(linked))
+                throw new IllegalArgumentException("linked cannot be null");
 
             String token = this.tokenRepository.Get();
 
             if (Objects.isNull(token))
-                throw new IllegalArgumentException("token is null");
+                throw new IllegalArgumentException("token cannot be null");
 
-            return new Subscription()
-                    .setId(this.getIdentifer())
+            Subscription subscription = new Subscription()
+                    .setId(this.getIdentifier())
                     .setApplication(config.getApplication())
                     .setGateway(new Firebase(token))
                     .setLinked(linked)
                     .setProtocol("1.0.0")
                     .setCulture(Locale.getDefault().getLanguage());
+
+           return CompletableFuture.completedFuture(subscription);
+
+        } catch (Exception exception) {
+            return CompletableFuture.failedFuture(exception);
+        }
     }
 
 
-    private UUID getIdentifer() {
+    public UUID getIdentifier() {
         return this.identifierRepository.Exist()
                 ? this.identifierRepository.Get()
                 : this.identifierRepository.Add(UUID.randomUUID());
