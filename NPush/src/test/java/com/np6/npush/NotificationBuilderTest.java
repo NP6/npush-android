@@ -34,6 +34,7 @@ import org.robolectric.shadows.ShadowPendingIntent;
 import java.util.UUID;
 
 @Config(sdk = {30})
+@RunWith(AndroidJUnit4.class)
 public class NotificationBuilderTest
 {
 
