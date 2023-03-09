@@ -1,26 +1,37 @@
 package com.np6.npush;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.RETURNS_SELF;
 import static org.mockito.Mockito.verify;
 
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.Intent;
 import android.service.notification.StatusBarNotification;
 
 import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.np6.npush.internal.NotificationBuilder;
 import com.np6.npush.internal.NotificationCenter;
 import com.np6.npush.internal.core.Serializer;
+import com.np6.npush.internal.models.action.TrackingAction;
 import com.np6.npush.internal.models.notification.Notification;
 import com.np6.npush.internal.models.notification.input.Meta;
+import com.np6.npush.internal.models.notification.input.Render;
+import com.np6.npush.internal.models.notification.input.Tracking;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
@@ -30,7 +41,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @Config(sdk = {30})
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class NotificationCenterTest {
 
     Context context = ApplicationProvider.getApplicationContext();
@@ -154,9 +165,243 @@ public class NotificationCenterTest {
 
 
     @Test
-    public void checkIfSubmitedNotificationIsValid() {
+    @Config(sdk = 30)
+    public void testBuildValidNotificationWithExistingChannel() throws Exception {
 
-        //this.notificationManager.notify(notificationId, buildNotification);
+        Meta metaMock = Mockito.mock(Meta.class);
+        Tracking trackingMock = Mockito.mock(Tracking.class);
+        Render renderMock = Mockito.mock(Render.class);
+
+        Mockito.when(metaMock.getChannelId()).thenReturn("this_my_channel");
+
+        Notification fakeNotification = new Notification()
+                .setMeta(metaMock)
+                .setRender(renderMock)
+                .setTracking(trackingMock);
+
+
+        NotificationBuilder notificationCompatBuilderMock = Mockito.mock(NotificationBuilder.class, RETURNS_SELF);
+        com.np6.npush.Config configMock = Mockito.mock(com.np6.npush.Config.class, RETURNS_SELF);
+        NotificationManager notificationManagerMock = Mockito.mock(NotificationManager.class);
+        NotificationManagerCompat notificationManagerCompatMock = Mockito.mock(NotificationManagerCompat.class);
+
+        NotificationCenter notificationCenter = new NotificationCenter(
+                configMock,
+                notificationCompatBuilderMock,
+                notificationManagerMock,
+                notificationManagerCompatMock
+        );
+
+        notificationCenter.build(fakeNotification);
+
+        Mockito.verify(renderMock, Mockito.times(1)).getTitle();
+        Mockito.verify(renderMock, Mockito.times(1)).getBody();
+
+        Mockito.verify(metaMock, Mockito.times(1)).getRedirection();
+        Mockito.verify(metaMock, Mockito.times(3)).getChannelId();
+
+        Mockito.verify(configMock, Mockito.times(0)).getDefaultChannel();
+    }
+
+    @Test
+    @Config(sdk = 30)
+    public void testBuildValidNotificationWithNonExistingChannel() throws Exception {
+
+        Meta metaMock = Mockito.mock(Meta.class);
+        Tracking trackingMock = Mockito.mock(Tracking.class);
+        Render renderMock = Mockito.mock(Render.class);
+
+        Mockito.when(metaMock.getChannelId()).thenReturn(null);
+
+        Notification fakeNotification = new Notification()
+                .setMeta(metaMock)
+                .setRender(renderMock)
+                .setTracking(trackingMock);
+
+
+        NotificationBuilder notificationCompatBuilderMock = Mockito.mock(NotificationBuilder.class, RETURNS_SELF);
+        com.np6.npush.Config configMock = Mockito.mock(com.np6.npush.Config.class, RETURNS_SELF);
+        NotificationManager notificationManagerMock = Mockito.mock(NotificationManager.class);
+        NotificationManagerCompat notificationManagerCompatMock = Mockito.mock(NotificationManagerCompat.class);
+
+        NotificationCenter notificationCenter = new NotificationCenter(
+                configMock,
+                notificationCompatBuilderMock,
+                notificationManagerMock,
+                notificationManagerCompatMock
+        );
+
+        notificationCenter.build(fakeNotification);
+
+        Mockito.verify(renderMock, Mockito.times(1)).getTitle();
+        Mockito.verify(renderMock, Mockito.times(1)).getBody();
+
+        Mockito.verify(metaMock, Mockito.times(1)).getRedirection();
+        Mockito.verify(metaMock, Mockito.times(1)).getChannelId(); // due to check
+
+        Mockito.verify(configMock, Mockito.times(1)).getDefaultChannel();
+    }
+
+    @Test
+    @Config(sdk = 23)
+    public void testBuildValidNotificationWithoutSystemChannels() throws Exception {
+
+        Meta metaMock = Mockito.mock(Meta.class);
+        Tracking trackingMock = Mockito.mock(Tracking.class);
+        Render renderMock = Mockito.mock(Render.class);
+
+        Mockito.when(metaMock.getChannelId()).thenReturn("this_my_channel");
+
+        Notification fakeNotification = new Notification()
+                .setMeta(metaMock)
+                .setRender(renderMock)
+                .setTracking(trackingMock);
+
+
+        NotificationBuilder notificationCompatBuilderMock = Mockito.mock(NotificationBuilder.class, RETURNS_SELF);
+        com.np6.npush.Config configMock = Mockito.mock(com.np6.npush.Config.class, RETURNS_SELF);
+        NotificationManager notificationManagerMock = Mockito.mock(NotificationManager.class);
+        NotificationManagerCompat notificationManagerCompatMock = Mockito.mock(NotificationManagerCompat.class);
+
+        NotificationCenter notificationCenter = new NotificationCenter(
+                configMock,
+                notificationCompatBuilderMock,
+                notificationManagerMock,
+                notificationManagerCompatMock
+        );
+
+        notificationCenter.build(fakeNotification);
+
+        Mockito.verify(metaMock, Mockito.times(0)).getChannelId();
+        Mockito.verify(configMock, Mockito.times(0)).getDefaultChannel();
 
     }
+
+    @Test
+    @Config(sdk = 30)
+    public void testSubmitNotificationWithDisabledNotifications() throws Exception {
+
+        Meta metaMock = Mockito.mock(Meta.class);
+        Tracking trackingMock = Mockito.mock(Tracking.class);
+        Render renderMock = Mockito.mock(Render.class);
+
+        Mockito.when(metaMock.getChannelId()).thenReturn(null);
+
+        Notification fakeNotification = new Notification()
+                .setMeta(metaMock)
+                .setRender(renderMock)
+                .setTracking(trackingMock);
+
+
+        NotificationBuilder notificationCompatBuilderMock = Mockito.mock(NotificationBuilder.class, RETURNS_SELF);
+        com.np6.npush.Config configMock = Mockito.mock(com.np6.npush.Config.class, RETURNS_SELF);
+        NotificationManager notificationManagerMock = Mockito.mock(NotificationManager.class);
+        NotificationManagerCompat notificationManagerCompatMock = Mockito.mock(NotificationManagerCompat.class);
+
+
+        Mockito.when(notificationManagerCompatMock.areNotificationsEnabled()).thenReturn(false);
+
+        NotificationCenter notificationCenter = new NotificationCenter(
+                configMock,
+                notificationCompatBuilderMock,
+                notificationManagerMock,
+                notificationManagerCompatMock
+        );
+
+        notificationCenter.submit(fakeNotification).get();
+
+        ArgumentCaptor<Integer> notificationId = ArgumentCaptor.forClass(Integer.class);
+        ArgumentCaptor<android.app.Notification> notification = ArgumentCaptor.forClass(android.app.Notification.class);
+
+
+        Mockito.verify(trackingMock, Mockito.times(1)).getGlobalOptoutAction();
+        Mockito.verify(trackingMock, Mockito.times(0)).getChannelOptoutAction();
+        Mockito.verify(notificationManagerMock, Mockito.times(0)).notify(notificationId.capture(), notification.capture());
+
+    }
+    @Test
+    @Config(sdk = 30)
+    public void testSubmitNotificationWithActivatedNotificationsAndDisabledChannel() throws Exception {
+
+        Meta metaMock = Mockito.mock(Meta.class);
+        Tracking trackingMock = Mockito.mock(Tracking.class);
+        Render renderMock = Mockito.mock(Render.class);
+
+        Mockito.when(metaMock.getChannelId()).thenReturn("test_channel");
+
+        Notification fakeNotification = new Notification()
+                .setMeta(metaMock)
+                .setRender(renderMock)
+                .setTracking(trackingMock);
+
+        NotificationBuilder notificationCompatBuilderMock = Mockito.mock(NotificationBuilder.class, RETURNS_SELF);
+        com.np6.npush.Config configMock = Mockito.mock(com.np6.npush.Config.class, RETURNS_SELF);
+        NotificationManager notificationManagerMock = Mockito.mock(NotificationManager.class);
+        NotificationManagerCompat notificationManagerCompatMock = Mockito.mock(NotificationManagerCompat.class);
+
+
+        Mockito.when(notificationManagerCompatMock.areNotificationsEnabled()).thenReturn(true);
+        Mockito.when(notificationManagerMock.getNotificationChannel(ArgumentMatchers.anyString())).thenReturn(null);
+
+        NotificationCenter notificationCenter = new NotificationCenter(
+                configMock,
+                notificationCompatBuilderMock,
+                notificationManagerMock,
+                notificationManagerCompatMock
+        );
+
+        notificationCenter.submit(fakeNotification).get();
+
+        ArgumentCaptor<Integer> notificationId = ArgumentCaptor.forClass(Integer.class);
+        ArgumentCaptor<android.app.Notification> notification = ArgumentCaptor.forClass(android.app.Notification.class);
+
+        Mockito.verify(trackingMock, Mockito.times(0)).getGlobalOptoutAction();
+        Mockito.verify(trackingMock, Mockito.times(1)).getChannelOptoutAction();
+        Mockito.verify(notificationManagerMock, Mockito.times(0)).notify(notificationId.capture(), notification.capture());
+    }
+
+    @Test
+    @Config(sdk = 30)
+    public void testSubmitNotificationWithActivatedNotifications() throws Exception {
+
+        Meta metaMock = Mockito.mock(Meta.class);
+        Tracking trackingMock = Mockito.mock(Tracking.class);
+        Render renderMock = Mockito.mock(Render.class);
+
+        Mockito.when(metaMock.getChannelId()).thenReturn("test_channel");
+
+        Notification fakeNotification = new Notification()
+                .setMeta(metaMock)
+                .setRender(renderMock)
+                .setTracking(trackingMock);
+
+        NotificationChannel fakeChannel = new NotificationChannel("id", "test_channel", NotificationManager.IMPORTANCE_DEFAULT);
+
+        NotificationBuilder notificationCompatBuilderMock = Mockito.mock(NotificationBuilder.class, RETURNS_SELF);
+        com.np6.npush.Config configMock = Mockito.mock(com.np6.npush.Config.class, RETURNS_SELF);
+        NotificationManager notificationManagerMock = Mockito.mock(NotificationManager.class);
+        NotificationManagerCompat notificationManagerCompatMock = Mockito.mock(NotificationManagerCompat.class);
+
+
+        Mockito.when(notificationManagerCompatMock.areNotificationsEnabled()).thenReturn(true);
+        Mockito.when(notificationManagerMock.getNotificationChannel(ArgumentMatchers.anyString())).thenReturn(fakeChannel);
+
+        NotificationCenter notificationCenter = new NotificationCenter(
+                configMock,
+                notificationCompatBuilderMock,
+                notificationManagerMock,
+                notificationManagerCompatMock
+        );
+
+        notificationCenter.submit(fakeNotification).get();
+
+        ArgumentCaptor<Integer> notificationId = ArgumentCaptor.forClass(Integer.class);
+        ArgumentCaptor<android.app.Notification> notification = ArgumentCaptor.forClass(android.app.Notification.class);
+
+        Mockito.verify(trackingMock, Mockito.times(0)).getGlobalOptoutAction();
+        Mockito.verify(trackingMock, Mockito.times(0)).getChannelOptoutAction();
+        Mockito.verify(notificationManagerMock, Mockito.times(1)).notify(notificationId.capture(), notification.capture());
+
+    }
+
 }

@@ -11,6 +11,8 @@ import static okhttp3.mock.HttpCode.HTTP_400_BAD_REQUEST;
 import static okhttp3.mock.HttpCode.HTTP_401_UNAUTHORIZED;
 import static okhttp3.mock.MediaTypes.MEDIATYPE_JSON;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.np6.npush.internal.api.SubscriptionApi;
 import com.np6.npush.internal.core.Constants;
@@ -42,7 +44,7 @@ import okhttp3.mock.MockInterceptor;
 import okhttp3.mock.Rule;
 
 @Config(sdk = {30})
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class SubscriptionApiTest {
 
 

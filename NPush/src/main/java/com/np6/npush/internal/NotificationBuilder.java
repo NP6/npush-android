@@ -1,6 +1,7 @@
 package com.np6.npush.internal;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -43,11 +44,11 @@ public class NotificationBuilder {
 
     public NotificationBuilder SetContent(String title, String body) {
 
-        if (Objects.isNull(title) || title.isEmpty()) {
+        if (title == null || title.isEmpty()) {
             throw new IllegalArgumentException();
         }
 
-        if (Objects.isNull(body) || body.isEmpty()) {
+        if (body == null || body.isEmpty()) {
             throw new IllegalArgumentException();
         }
 
@@ -68,7 +69,14 @@ public class NotificationBuilder {
 
     public NotificationBuilder setChannel(String channelId) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            nativeBuilder.setChannelId(Channel.getChannelOrDefault(context, channelId));
+
+            if (Channel.getChannel(context, channelId) == null) {
+                return this;
+            }
+
+            String channel = Channel.getChannel(context, channelId).getId();
+
+            nativeBuilder.setChannelId(channel);
         }
         return this;
     }

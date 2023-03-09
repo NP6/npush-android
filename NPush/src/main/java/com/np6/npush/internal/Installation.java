@@ -25,11 +25,11 @@ public class Installation {
 
     public static Installation initialize(Context context, Config config) {
 
-        if (Objects.isNull(config)) {
+        if (config == null) {
             throw new IllegalArgumentException();
         }
 
-        if (Objects.isNull(context)) {
+        if (context == null) {
             throw new IllegalArgumentException();
         }
 
@@ -54,12 +54,12 @@ public class Installation {
     public CompletableFuture<Subscription> subscribe(Linked linked) {
 
         try {
-            if (Objects.isNull(linked))
+            if (linked == null)
                 throw new IllegalArgumentException("linked cannot be null");
 
             String token = this.tokenRepository.Get();
 
-            if (Objects.isNull(token))
+            if (token == null)
                 throw new IllegalArgumentException("token cannot be null");
 
             Subscription subscription = new Subscription()

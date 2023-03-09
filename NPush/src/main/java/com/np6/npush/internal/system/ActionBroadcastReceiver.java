@@ -49,9 +49,9 @@ public class ActionBroadcastReceiver extends BroadcastReceiver {
     public static String parseAction(Intent intent) throws Exception {
         switch (intent.getAction()) {
             case Constants.Intent.INTENT_DISMISS_INTENT:
-                return intent.getStringExtra(Constants.Extra.BUNDLE_KEY_REDIRECTION_KEY);
-            case Constants.Intent.INTENT_REDIRECTION_INTENT:
                 return intent.getStringExtra(Constants.Extra.BUNDLE_KEY_DISMISS_KEY);
+            case Constants.Intent.INTENT_REDIRECTION_INTENT:
+                return intent.getStringExtra(Constants.Extra.BUNDLE_KEY_REDIRECTION_KEY);
             default:
                 throw new Exception("unknown intent action key");
             }
@@ -61,13 +61,13 @@ public class ActionBroadcastReceiver extends BroadcastReceiver {
 
         final String radical = intent.getStringExtra(Constants.Extra.BUNDLE_RADICAL_KEY);
 
-        if (Objects.isNull(radical) || radical.isEmpty()) {
+        if (radical == null || radical.isEmpty()) {
             throw new IllegalArgumentException("radical cannot be null or empty");
         }
 
         final String action = parseAction(intent);
 
-        if (Objects.isNull(action) || action.isEmpty()) {
+        if (action == null || action.isEmpty()) {
             throw new IllegalArgumentException("radical cannot be null or empty");
         }
 

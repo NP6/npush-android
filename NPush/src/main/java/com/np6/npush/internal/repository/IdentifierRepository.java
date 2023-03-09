@@ -32,7 +32,7 @@ public class IdentifierRepository implements Repository<UUID> {
             * Throw IllegalArgumentException if value is null ?
             * Case happen if we call Remove() and then Get()
             */
-            if (Objects.isNull(value)) {
+            if (value == null) {
                 return null;
             }
 

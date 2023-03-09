@@ -55,11 +55,11 @@ public class NPush {
 
     public synchronized void initialize(Context context) {
         try {
-            if (Objects.isNull(context)) {
+            if (context == null) {
                 throw new IllegalArgumentException("context must be specified");
             }
 
-            if (Objects.isNull(config)) {
+            if (config == null) {
                 throw new IllegalArgumentException("config must be specified");
             }
 
@@ -83,15 +83,15 @@ public class NPush {
 
     public synchronized void setContact(Context context, Linked linked) {
         try {
-            if (Objects.isNull(context))
+            if (context == null)
                 throw new IllegalArgumentException("context must be specified");
 
 
-            if (Objects.isNull(linked))
+            if (linked == null)
                 throw new IllegalArgumentException("linked must be specified");
 
 
-            if (Objects.isNull(this.config))
+            if (this.config == null)
                 throw new IllegalArgumentException("config must be specified");
 
 
@@ -124,13 +124,13 @@ public class NPush {
     public synchronized void handleNotification(Context context, Map<String, String> remoteData) {
         try {
 
-            if (Objects.isNull(context))
+            if (context == null)
                 throw new IllegalArgumentException("context must be specified");
 
-            if (Objects.isNull(remoteData))
+            if (remoteData == null)
                 throw new IllegalArgumentException("remoteData must be specified");
 
-            if (Objects.isNull(this.config))
+            if (this.config == null)
                 throw new IllegalArgumentException("config must be specified");
 
             Notification notification = NotificationCenter.fromRemoteMessage(remoteData);

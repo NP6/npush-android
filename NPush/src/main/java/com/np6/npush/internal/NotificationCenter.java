@@ -40,10 +40,10 @@ public class NotificationCenter {
     NotificationManagerCompat notificationManagerCompat;
 
     public static NotificationCenter initialize(Context context, Config config) {
-        if (Objects.isNull(context))
+        if (context == null)
             throw new IllegalArgumentException();
 
-        if (Objects.isNull(config))
+        if (config == null)
             throw new IllegalArgumentException();
 
         NotificationBuilder notificationBuilder = NotificationBuilder.create(context, config);
@@ -99,10 +99,10 @@ public class NotificationCenter {
         }
     }
 
-    public android.app.Notification build(final Notification notification) throws Exception {
+    public android.app.Notification build(Notification notification) throws Exception {
 
         this.builder
-                .SetContent(notification.getRender().title, notification.getRender().body)
+                .SetContent(notification.getRender().getTitle(), notification.getRender().getBody())
                 .setDeeplink(notification.getMeta().getRedirection(), notification.getTracking())
                 .setDismiss(notification.getTracking())
                 .setIcon();
@@ -110,7 +110,7 @@ public class NotificationCenter {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
             final String channel =
-                    Objects.isNull(notification.getMeta().getChannelId()) || notification.getMeta().getChannelId().isEmpty()
+                    notification.getMeta().getChannelId()  == null || notification.getMeta().getChannelId().isEmpty()
                             ? config.getDefaultChannel()
                             : notification.getMeta().getChannelId();
 

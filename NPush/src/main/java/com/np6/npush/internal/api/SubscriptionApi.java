@@ -44,7 +44,7 @@ public class SubscriptionApi {
 
     public static SubscriptionApi create(String identity) {
 
-        if (Objects.isNull(identity) || identity.isEmpty()) {
+        if (identity == null || identity.isEmpty()) {
             throw new IllegalArgumentException();
         }
 
