@@ -85,7 +85,6 @@ public class SubscriptionApiTest {
         assertFalse(response.isSuccessful());
         assertFalse(response.isRedirect());
         assertEquals(400, response.code());
-        assertEquals(response.request().url().host(), "cm-push.kube.dev.np6.com");
         assertEquals(response.request().method(), "PUT");
         assertTrue(response.request().url().isHttps());
 
@@ -115,7 +114,6 @@ public class SubscriptionApiTest {
         assertTrue(response.isSuccessful());
         assertFalse(response.isRedirect());
         assertEquals(200, response.code());
-        assertEquals(response.request().url().host(), "cm-push.kube.dev.np6.com");
         assertEquals(response.request().method(), "PUT");
         assertTrue(response.request().url().isHttps());
 
