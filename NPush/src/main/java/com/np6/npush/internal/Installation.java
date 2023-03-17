@@ -6,6 +6,7 @@ import com.np6.npush.Config;
 import com.np6.npush.internal.models.Subscription;
 import com.np6.npush.internal.models.contact.Linked;
 import com.np6.npush.internal.models.gateway.Firebase;
+import com.np6.npush.internal.models.gateway.Gateway;
 import com.np6.npush.internal.repository.IdentifierRepository;
 import com.np6.npush.internal.repository.TokenRepository;
 
@@ -59,13 +60,15 @@ public class Installation {
 
             String token = this.tokenRepository.Get();
 
-            if (token == null)
-                throw new IllegalArgumentException("token cannot be null");
+            if (token == null || token.isEmpty())
+                throw new IllegalArgumentException("token cannot be null or empty");
+
+            Firebase gateway = new Firebase(token);
 
             Subscription subscription = new Subscription()
                     .setId(this.getIdentifier())
                     .setApplication(config.getApplication())
-                    .setGateway(new Firebase(token))
+                    .setGateway(gateway)
                     .setLinked(linked)
                     .setProtocol("1.0.0")
                     .setCulture(Locale.getDefault().getLanguage());

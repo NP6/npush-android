@@ -33,7 +33,8 @@ public class ChannelTest {
         com.np6.npush.Config config = new com.np6.npush.Config(
                 UUID.fromString("12345678-1234-1234-1234-123456789abc"),
                 "IDEN012",
-                "default channel test name"
+                "default channel test name",
+                false
         );
         NPush.Instance().setConfig(config);
         defaultChannelId = NPush.Instance().getConfig().getDefaultChannel();

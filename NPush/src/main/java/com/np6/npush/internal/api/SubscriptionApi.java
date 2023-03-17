@@ -53,7 +53,7 @@ public class SubscriptionApi {
         return new SubscriptionApi(identity, driver);
     }
 
-    public CompletableFuture<Response> put(final Subscription subscription) {
+    public CompletableFuture<Response> put(Subscription subscription) {
 
         CompletableFuture<Response> future = new CompletableFuture<>();
 
@@ -83,6 +83,7 @@ public class SubscriptionApi {
 
                         @Override
                         public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                            Objects.requireNonNull(response.body()).close();
                             future.complete(response);
                         }
                     });
@@ -90,49 +91,5 @@ public class SubscriptionApi {
             future.completeExceptionally(exception);
         }
         return future;
-    }
-
-    public void put(final Subscription subscription, final Completion<Subscription> completion) {
-        Concurrent.Shared.executor.submit(() -> {
-
-            try {
-                Serializer serializer = new Serializer();
-                String payload = serializer.serialize(subscription);
-
-                RequestBody body = RequestBody.create(
-                        payload,
-                        MediaType.parse("application/json")
-                );
-
-                Request request = new Request.Builder()
-                        .put(body)
-                        .addHeader("Content-Type", "application/json")
-                        .url(this.basePath)
-                        .build();
-
-                Response response = this.driver
-                        .getClient()
-                        .newCall(request)
-                        .execute();
-
-                if (!response.isSuccessful()) {
-                    String message = "An error as occurred while creating subscription " +
-                            response.code();
-
-                    Concurrent.Shared.mainThreadHandler.post(() -> {
-                        completion.onComplete(new Result.Error<>(new Exception(message)));
-                    });
-                    return;
-                }
-                Concurrent.Shared.mainThreadHandler.post(() -> {
-                    completion.onComplete(new Result.Success<>(subscription));
-                });
-
-            } catch (Exception exception) {
-                Concurrent.Shared.mainThreadHandler.post(() -> {
-                    completion.onComplete(new Result.Error<>(exception));
-                });
-            }
-        });
     }
 }

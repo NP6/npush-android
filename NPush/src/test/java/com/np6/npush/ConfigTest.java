@@ -15,7 +15,7 @@ public class ConfigTest {
     @BeforeClass
     public static void Init() {
         configTest = new Config(UUID.fromString("b1c1b2c2-1111-2222-3333-b1c1b2c2b3c3"),
-                "MCOM032","defaultChannel");
+                "MCOM032","defaultChannel", false);
     }
 
     @Test

@@ -75,9 +75,5 @@ public class Subscription {
 
     public UUID getId() { return id; }
     public UUID getApplication() { return application; }
-    public String getCulture() { return culture; }
-    public String getProtocol() { return protocol; }
-    public Linked getLinked() { return linked; }
-    public String getGateway() { return ((Firebase) gateway).token; }
 
 }

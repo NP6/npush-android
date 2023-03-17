@@ -2,6 +2,9 @@ package com.np6.npush.internal.provider;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -9,6 +12,7 @@ import com.np6.npush.internal.core.concurrency.Concurrent;
 import com.np6.npush.internal.models.common.Completion;
 import com.np6.npush.internal.models.common.Result;
 
+import java9.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 public class TokenProvider implements Provider<String> {
@@ -20,25 +24,17 @@ public class TokenProvider implements Provider<String> {
     }
 
     @Override
-    public void getResultAsync(Completion<String> completion) {
-        Concurrent.Shared.executor.submit(() -> {
-            try {
-                FirebaseMessaging firebaseMessaging = FirebaseMessaging.getInstance();
+    public CompletableFuture<String> getResultAsync() {
 
-                Task<String> tokenTask = firebaseMessaging.getToken();
+        CompletableFuture<String> future = new CompletableFuture<>();
 
-                Tasks.await(tokenTask, 30000L, TimeUnit.MILLISECONDS);
+        FirebaseMessaging
+                .getInstance()
+                .getToken()
+                .addOnSuccessListener(future::complete)
+                .addOnFailureListener(future::completeExceptionally)
+                .addOnCanceledListener(() -> future.cancel(true));
 
-                if (!tokenTask.isSuccessful()) {
-                    throw new Exception("Token task failed. Reason : " + tokenTask.getException().getMessage());
-                }
-
-                String token = tokenTask.getResult();
-
-                completion.onComplete(new Result.Success<>(token));
-            } catch (Exception exception) {
-                completion.onComplete(new Result.Error<>(exception));
-            }
-        });
+        return future;
     }
 }

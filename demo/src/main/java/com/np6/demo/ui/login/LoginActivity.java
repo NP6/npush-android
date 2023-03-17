@@ -44,32 +44,6 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Config config = new Config(
-                UUID.fromString("c5d6993f-7e81-4039-8755-5b82694bf473"),
-                "MCOM032",
-                "default channel test name"
-        );
-        NPush.Instance().setConfig(config);
-
-        NPush.Instance().initialize(this);
-
-        NPush.Instance().setInterceptor((context, deeplink) -> {
-            TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
-
-            Intent intentMain = new Intent(context, MainActivity.class);
-            stackBuilder.addNextIntent(intentMain);
-
-            Intent intent = new Intent(context, ProductsActivity.class);
-            stackBuilder.addNextIntent(intent);
-
-            Uri uri = Uri.parse(deeplink);
-            Intent deeplinkIntent = new Intent(Intent.ACTION_VIEW)
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    .setData(uri);
-            stackBuilder.addNextIntent(deeplinkIntent);
-            return stackBuilder;
-        });
-
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 

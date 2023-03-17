@@ -67,7 +67,7 @@ public class NotificationBuilderTest
     }
 
     public com.np6.npush.Config getValidConfig() {
-        return new com.np6.npush.Config(UUID.randomUUID(), "MCOM032", "default_channel");
+        return new com.np6.npush.Config(UUID.randomUUID(), "MCOM032", "default_channel", false);
     }
 
     @Before

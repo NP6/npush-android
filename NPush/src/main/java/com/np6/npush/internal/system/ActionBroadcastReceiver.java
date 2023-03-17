@@ -32,7 +32,7 @@ public class ActionBroadcastReceiver extends BroadcastReceiver {
                             Logger.Info(new Info<>("Action tracked successfully "));
                             return;
                         }
-                        Logger.Error(new Error<>("Action tracking failed - status code : " + response.code()));
+                        Logger.Error(new Error<>(new Exception("Action tracking failed - status code : " + response.code())));
 
                     }).exceptionally((throwable -> {
                         Logger.Error(new Error<>(throwable));
@@ -54,7 +54,7 @@ public class ActionBroadcastReceiver extends BroadcastReceiver {
                 return intent.getStringExtra(Constants.Extra.BUNDLE_KEY_REDIRECTION_KEY);
             default:
                 throw new Exception("unknown intent action key");
-            }
+        }
     }
 
     public static TrackingAction<String> parse(Intent intent) throws Exception {

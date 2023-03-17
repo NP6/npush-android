@@ -56,6 +56,7 @@ public class InteractionApi {
 
                         @Override
                         public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                            Objects.requireNonNull(response.body()).close();
                             future.complete(response);
                         }
                     });

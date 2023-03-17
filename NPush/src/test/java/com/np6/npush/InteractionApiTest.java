@@ -50,9 +50,7 @@ public class InteractionApiTest {
 
 
     @Before
-    public void setup() {
-
-    }
+    public void setup() { }
 
     @Test
     public void testCallForTrackInteractionWithBadRequestHttpResponse() throws InterruptedException, JsonProcessingException, ExecutionException {

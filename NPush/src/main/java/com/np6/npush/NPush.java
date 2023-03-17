@@ -29,8 +29,7 @@ public class NPush {
 
     public DeeplinkInterceptor interceptor;
 
-    private NPush() {
-    }
+    private NPush() {}
 
     public Config getConfig() {
         return config;
@@ -40,7 +39,7 @@ public class NPush {
         this.interceptor = interceptor;
     }
 
-    public void setConfig(Config config) {
+    public synchronized void setConfig(Config config) {
         this.config = config;
     }
 
@@ -65,17 +64,13 @@ public class NPush {
 
             TokenProvider
                     .getProvider(context)
-                    .getResultAsync((result -> {
-
-                        if (result instanceof Result.Error)
-                            Logger.Error(new Error<>(((Result.Error) result).exception));
-
-                        if (result instanceof Result.Success)
-                            TokenRepository
-                                    .create(context)
-                                    .Add(((Result.Success<String>) result).data);
-                        Logger.Info(new Info<>("Token generate succeed "));
+                    .getResultAsync()
+                    .thenAccept(token -> TokenRepository.create(context).Add(token))
+                    .exceptionally((throwable -> {
+                        Logger.Error(new Error<>(throwable));
+                        return null;
                     }));
+
         } catch (Exception exception) {
             Logger.Error(new Error<>(exception));
         }
@@ -95,26 +90,25 @@ public class NPush {
                 throw new IllegalArgumentException("config must be specified");
 
 
-            Subscription subscription = Installation
-                    .initialize(context, this.config)
-                    .subscribe(linked)
-                    .get();
+            Installation installation = Installation.initialize(context, this.config);
 
-            SubscriptionApi
-                    .create(this.config.getIdentity())
+            Subscription subscription = installation.subscribe(linked).get();
+
+            SubscriptionApi subscriptionApi =  SubscriptionApi.create(this.config.getIdentity());
+
+            subscriptionApi
                     .put(subscription)
                     .thenAccept(response -> {
                         if (response.isSuccessful()) {
                             Logger.Info(new Info<>("Subscription created successfully"));
                             return;
                         }
-                        Logger.Error(new Error<>("Subscription creation failed with - status code  : " + response.code()));
+                        Logger.Error(new Error<>(new Exception("Subscription creation failed with http status code " + response.code())));
 
                     }).exceptionally((throwable -> {
                         Logger.Error(new Error<>(throwable));
                         return null;
                     }));
-
 
         } catch (Exception exception) {
             Logger.Error(new Error<>(exception));
@@ -123,7 +117,6 @@ public class NPush {
 
     public synchronized void handleNotification(Context context, Map<String, String> remoteData) {
         try {
-
             if (context == null)
                 throw new IllegalArgumentException("context must be specified");
 
@@ -149,7 +142,7 @@ public class NPush {
                             Logger.Info(new Info<>("Action tracked successfully "));
                             return;
                         }
-                        Logger.Error(new Error<>("Action tracking failed - status code : " + response.code()));
+                        Logger.Error(new Error<>(new Exception("Action tracking failed with status code : " + response.code())));
 
                     }).exceptionally((throwable -> {
                         Logger.Error(new Error<>(throwable));

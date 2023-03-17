@@ -1,10 +1,13 @@
 package com.np6.npush.internal.models.log.common;
 
+import android.os.Build;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.np6.npush.internal.models.log.Log;
 
 public class Error <T> extends Log {
+
 
     public T value;
 
@@ -17,4 +20,5 @@ public class Error <T> extends Log {
     public void setValue(T value) {
         this.value = value;
     }
+
 }

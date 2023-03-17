@@ -19,8 +19,7 @@
         <receiver
             android:name=".internal.system.ActionBroadcastReceiver"
             android:enabled="true"
-            android:exported="false"
-            android:permission="TODO">
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.npush.action.subscription.install" />
             </intent-filter>
