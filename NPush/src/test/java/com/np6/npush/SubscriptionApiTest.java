@@ -16,7 +16,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.np6.npush.internal.api.SubscriptionApi;
 import com.np6.npush.internal.core.Constants;
-import com.np6.npush.internal.core.concurrency.Concurrent;
 import com.np6.npush.internal.core.network.driver.Driver;
 import com.np6.npush.internal.models.Subscription;
 import com.np6.npush.internal.models.common.Completion;

@@ -21,6 +21,8 @@ import com.np6.npush.internal.repository.TokenRepository;
 import java.util.Map;
 import java.util.Objects;
 
+import java9.util.concurrent.CompletableFuture;
+
 public class NPush {
 
     private static NPush instance;
@@ -29,7 +31,8 @@ public class NPush {
 
     public DeeplinkInterceptor interceptor;
 
-    private NPush() {}
+    private NPush() {
+    }
 
     public Config getConfig() {
         return config;
@@ -42,6 +45,7 @@ public class NPush {
     public synchronized void setConfig(Config config) {
         this.config = config;
     }
+
 
     public static NPush Instance() {
         synchronized (NPush.class) {
@@ -90,14 +94,9 @@ public class NPush {
                 throw new IllegalArgumentException("config must be specified");
 
 
-            Installation installation = Installation.initialize(context, this.config);
-
-            Subscription subscription = installation.subscribe(linked).get();
-
-            SubscriptionApi subscriptionApi =  SubscriptionApi.create(this.config.getIdentity());
-
-            subscriptionApi
-                    .put(subscription)
+            Installation
+                    .create(context, this.config)
+                    .subscribe(linked)
                     .thenAccept(response -> {
                         if (response.isSuccessful()) {
                             Logger.Info(new Info<>("Subscription created successfully"));
@@ -109,6 +108,7 @@ public class NPush {
                         Logger.Error(new Error<>(throwable));
                         return null;
                     }));
+
 
         } catch (Exception exception) {
             Logger.Error(new Error<>(exception));
@@ -128,14 +128,14 @@ public class NPush {
 
             Notification notification = NotificationCenter.fromRemoteMessage(remoteData);
 
-            TrackingAction<String> action = NotificationCenter
-                    .initialize(context, this.config)
-                    .submit(notification)
-                    .get();
+            NotificationCenter notificationCenter = NotificationCenter.initialize(context, this.config);
 
-            InteractionApi interactionApi = InteractionApi.create();
+            CompletableFuture<TrackingAction<String>> future = notificationCenter.submit(notification);
 
-            interactionApi
+            TrackingAction<String> action = future.get();
+
+            InteractionApi
+                    .create()
                     .get(action.getRadical(), action.getValue())
                     .thenAccept(response -> {
                         if (response.isSuccessful()) {

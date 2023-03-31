@@ -8,7 +8,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.messaging.FirebaseMessaging;
-import com.np6.npush.internal.core.concurrency.Concurrent;
 import com.np6.npush.internal.models.common.Completion;
 import com.np6.npush.internal.models.common.Result;
 

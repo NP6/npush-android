@@ -17,7 +17,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.np6.npush.internal.api.InteractionApi;
 import com.np6.npush.internal.api.SubscriptionApi;
 import com.np6.npush.internal.core.Constants;
-import com.np6.npush.internal.core.concurrency.Concurrent;
 import com.np6.npush.internal.core.network.driver.Driver;
 import com.np6.npush.internal.models.Subscription;
 import com.np6.npush.internal.models.common.Completion;

@@ -4,17 +4,11 @@ package com.np6.npush.internal.api;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.np6.npush.internal.core.Constants;
 import com.np6.npush.internal.core.Serializer;
-import com.np6.npush.internal.core.concurrency.Concurrent;
 import com.np6.npush.internal.core.network.HttpClient;
 import com.np6.npush.internal.core.network.driver.Driver;
 import com.np6.npush.internal.models.Subscription;
-import com.np6.npush.internal.models.common.Completion;
-import com.np6.npush.internal.models.common.Result;
 
 
 import java.io.IOException;
@@ -24,7 +18,6 @@ import java9.util.concurrent.CompletableFuture;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;

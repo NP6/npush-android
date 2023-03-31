@@ -3,10 +3,14 @@ package com.np6.npush.internal;
 import android.content.Context;
 
 import com.np6.npush.Config;
+import com.np6.npush.internal.api.SubscriptionApi;
+import com.np6.npush.internal.core.Logger;
 import com.np6.npush.internal.models.Subscription;
 import com.np6.npush.internal.models.contact.Linked;
 import com.np6.npush.internal.models.gateway.Firebase;
 import com.np6.npush.internal.models.gateway.Gateway;
+import com.np6.npush.internal.models.log.common.Error;
+import com.np6.npush.internal.models.log.common.Info;
 import com.np6.npush.internal.repository.IdentifierRepository;
 import com.np6.npush.internal.repository.TokenRepository;
 
@@ -15,6 +19,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 import java9.util.concurrent.CompletableFuture;
+import okhttp3.Response;
 
 public class Installation {
 
@@ -24,7 +29,9 @@ public class Installation {
 
     private final IdentifierRepository identifierRepository;
 
-    public static Installation initialize(Context context, Config config) {
+    private final SubscriptionApi subscriptionApi;
+
+    public static Installation create(Context context, Config config) {
 
         if (config == null) {
             throw new IllegalArgumentException();
@@ -38,21 +45,25 @@ public class Installation {
 
         IdentifierRepository identifierRepository = IdentifierRepository.create(context);
 
-        return new Installation(config, tokenRepository, identifierRepository);
+        SubscriptionApi subscriptionApi =  SubscriptionApi.create(config.getIdentity());
+
+        return new Installation(config, tokenRepository, identifierRepository, subscriptionApi);
     }
 
     public Installation(
             Config config,
             TokenRepository tokenRepository,
-            IdentifierRepository identifierRepository)
+            IdentifierRepository identifierRepository,
+            SubscriptionApi subscriptionApi)
     {
         this.config = config;
         this.tokenRepository = tokenRepository;
         this.identifierRepository = identifierRepository;
+        this.subscriptionApi = subscriptionApi;
     }
 
 
-    public CompletableFuture<Subscription> subscribe(Linked linked) {
+    public CompletableFuture<Response> subscribe(Linked linked) {
 
         try {
             if (linked == null)
@@ -73,7 +84,7 @@ public class Installation {
                     .setProtocol("1.0.0")
                     .setCulture(Locale.getDefault().getLanguage());
 
-           return CompletableFuture.completedFuture(subscription);
+            return this.subscriptionApi.put(subscription);
 
         } catch (Exception exception) {
             return CompletableFuture.failedFuture(exception);

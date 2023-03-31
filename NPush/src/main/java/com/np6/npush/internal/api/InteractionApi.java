@@ -3,7 +3,6 @@ package com.np6.npush.internal.api;
 import androidx.annotation.NonNull;
 
 import com.np6.npush.internal.core.Serializer;
-import com.np6.npush.internal.core.concurrency.Concurrent;
 import com.np6.npush.internal.core.network.HttpClient;
 import com.np6.npush.internal.core.network.driver.Driver;
 import com.np6.npush.internal.models.common.Completion;

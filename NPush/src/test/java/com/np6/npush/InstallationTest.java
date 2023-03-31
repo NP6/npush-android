@@ -10,6 +10,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.np6.npush.internal.Installation;
+import com.np6.npush.internal.api.SubscriptionApi;
 import com.np6.npush.internal.core.Constants;
 import com.np6.npush.internal.core.Serializer;
 import com.np6.npush.internal.core.persistence.SharedPreferenceStorage;
@@ -34,6 +35,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 import java9.util.concurrent.CompletableFuture;
+import okhttp3.Response;
 
 @Config(sdk = {30})
 @RunWith(AndroidJUnit4.class)
@@ -51,18 +53,18 @@ public class InstallationTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void initializeWithNullConfig() {
-        Installation.initialize(ApplicationProvider.getApplicationContext(), null);
+        Installation.create(ApplicationProvider.getApplicationContext(), null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void initializeWithNullContext() {
-        Installation.initialize(null, config);
+        Installation.create(null, config);
     }
 
     @Test
     public void subscribeWithNullLinked() {
 
-        CompletableFuture<Subscription> future =Installation.initialize(context, config).subscribe(null);
+        CompletableFuture<Response> future =Installation.create(context, config).subscribe(null);
         assertTrue(future.isCompletedExceptionally());
     }
 
@@ -73,10 +75,11 @@ public class InstallationTest {
         Mockito.when(tokenRepositoryMock.Get()).thenReturn(null);
 
         IdentifierRepository identifierRepositoryMock = Mockito.mock(IdentifierRepository.class);
+        SubscriptionApi subscriptionApMock = Mockito.mock(SubscriptionApi.class);
 
-        Installation installation = new Installation(config, tokenRepositoryMock, identifierRepositoryMock);
+        Installation installation = new Installation(config, tokenRepositoryMock, identifierRepositoryMock, subscriptionApMock);
 
-        CompletableFuture<Subscription> future = installation.subscribe(new ContactHash("d4790c65207479aaf6d9869fa86dd3d3"));
+        CompletableFuture<Response> future = installation.subscribe(new ContactHash("d4790c65207479aaf6d9869fa86dd3d3"));
 
         Mockito.verify(tokenRepositoryMock, Mockito.times(1)).Get();
         assertTrue(future.isCompletedExceptionally());
@@ -93,14 +96,17 @@ public class InstallationTest {
 
         IdentifierRepository identifierRepositoryMock = Mockito.mock(IdentifierRepository.class);
 
-        Installation installation = new Installation(config, tokenRepositoryMock, identifierRepositoryMock);
+        SubscriptionApi subscriptionApMock = Mockito.mock(SubscriptionApi.class);
 
-        Subscription subscription = installation.subscribe(new ContactHash("d4790c65207479aaf6d9869fa86dd3d3")).get();
+        Response responseMock = Mockito.mock(Response.class);
 
-        Firebase gateway = (Firebase)subscription.gateway;
+        Mockito.when(subscriptionApMock.put(ArgumentMatchers.any())).thenReturn(CompletableFuture.completedFuture(responseMock));
+
+        Installation installation = new Installation(config, tokenRepositoryMock, identifierRepositoryMock, subscriptionApMock);
+
+        Response response = installation.subscribe(new ContactHash("d4790c65207479aaf6d9869fa86dd3d3")).get();
 
         Mockito.verify(tokenRepositoryMock, Mockito.times(1)).Get();
-        assertEquals(validToken, gateway.token);
     }
 
     @Test
@@ -119,12 +125,18 @@ public class InstallationTest {
         Mockito.when(identifierRepositoryMock.Exist()).thenReturn(true);
         Mockito.when(identifierRepositoryMock.Get()).thenReturn(UUID.fromString(validIdentifier));
 
-        Installation installation = new Installation(config, tokenRepositoryMock, identifierRepositoryMock);
+        SubscriptionApi subscriptionApMock = Mockito.mock(SubscriptionApi.class);
 
-        Subscription subscription = installation.subscribe(new ContactHash("d4790c65207479aaf6d9869fa86dd3d3")).get();
+        Response responseMock = Mockito.mock(Response.class);
+
+        Mockito.when(subscriptionApMock.put(ArgumentMatchers.any())).thenReturn(CompletableFuture.completedFuture(responseMock));
+
+        Installation installation = new Installation(config, tokenRepositoryMock, identifierRepositoryMock, subscriptionApMock);
+
+        installation.subscribe(new ContactHash("d4790c65207479aaf6d9869fa86dd3d3")).get();
 
         Mockito.verify(tokenRepositoryMock, Mockito.times(1)).Get();
-        assertEquals(UUID.fromString(validIdentifier), subscription.id);
+        Mockito.verify(identifierRepositoryMock, Mockito.times(1)).Get();
     }
 
 
@@ -134,7 +146,9 @@ public class InstallationTest {
         TokenRepository tokenRepositoryMock = Mockito.mock(TokenRepository.class);
         IdentifierRepository identifierRepositoryMock = Mockito.mock(IdentifierRepository.class);
 
-        Installation installation = new Installation(config, tokenRepositoryMock, identifierRepositoryMock);
+        SubscriptionApi subscriptionApMock = Mockito.mock(SubscriptionApi.class);
+
+        Installation installation = new Installation(config, tokenRepositoryMock, identifierRepositoryMock, subscriptionApMock);
 
         installation.getIdentifier();
 
@@ -155,7 +169,9 @@ public class InstallationTest {
 
         Mockito.when(identifierRepositoryMock.Exist()).thenReturn(true);
 
-        Installation installation = new Installation(config, tokenRepositoryMock, identifierRepositoryMock);
+        SubscriptionApi subscriptionApMock = Mockito.mock(SubscriptionApi.class);
+
+        Installation installation = new Installation(config, tokenRepositoryMock, identifierRepositoryMock, subscriptionApMock);
 
         installation.getIdentifier();
 
