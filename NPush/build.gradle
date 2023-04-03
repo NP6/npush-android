@@ -17,6 +17,10 @@ publishing {
             groupId 'com.github.NP6'
             artifactId getArtificatId()
             version "0.0.4"
+            afterEvaluate {
+                from components.release
+            }
+
         }
     }
 }
