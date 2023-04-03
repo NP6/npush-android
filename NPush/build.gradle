@@ -8,38 +8,15 @@ apply plugin: 'maven-publish'
 
 
 def getArtificatId = { ->
-    return "NPush"
+    return "npush-android"
 }
 
 publishing {
     publications {
-        bar(MavenPublication) {
-            groupId 'com.np6.mobile'
+        release(MavenPublication) {
+            groupId 'com.github.NP6'
             artifactId getArtificatId()
             version "0.0.4"
-            artifact("$buildDir/outputs/aar/${getArtificatId()}-release.aar")
-            pom.withXml {
-                def dependenciesNode = asNode().appendNode('dependencies')
-                configurations.implementation.allDependencies.each { dependency ->
-                    if (dependency.name != 'unspecified') {
-                        def dependencyNode = dependenciesNode.appendNode('dependency')
-                        dependencyNode.appendNode('groupId', dependency.group)
-                        dependencyNode.appendNode('artifactId', dependency.name)
-                        dependencyNode.appendNode('version', dependency.version)
-                    }
-                }
-            }
-        }
-    }
-
-    repositories {
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/np6/npush-android")
-            credentials {
-                username = "NP6"
-                password = "${System.env.GITHUB_TOKEN}"
-            }
         }
     }
 }
@@ -66,6 +43,13 @@ android {
 
             buildConfigField "String", "NP6_SUBSCRIPION_API_URL", "\"https://subscriptions.np6.com/api/v1.0/\""
             buildConfigField "String", "NP6_TELEMETRY_API_URL", "\"https://telemetry.np6.com/api/v1.0/\""
+        }
+    }
+
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+            withJavadocJar()
         }
     }
 
