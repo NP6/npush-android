@@ -4,7 +4,6 @@ import android.content.Context;
 
 import com.np6.npush.Config;
 import com.np6.npush.internal.api.SubscriptionApi;
-import com.np6.npush.internal.core.Logger;
 import com.np6.npush.internal.models.Subscription;
 import com.np6.npush.internal.models.contact.Linked;
 import com.np6.npush.internal.models.gateway.Firebase;

@@ -6,15 +6,15 @@ import android.content.Intent;
 
 import com.np6.npush.internal.api.InteractionApi;
 import com.np6.npush.internal.core.Constants;
-import com.np6.npush.internal.core.Logger;
+import com.np6.npush.internal.core.logger.Console;
+import com.np6.npush.internal.core.logger.Logger;
 import com.np6.npush.internal.models.action.TrackingAction;
-import com.np6.npush.internal.models.common.Result;
 import com.np6.npush.internal.models.log.common.Error;
 import com.np6.npush.internal.models.log.common.Info;
 
-import java.util.Objects;
-
 public class ActionBroadcastReceiver extends BroadcastReceiver {
+
+    public static Logger console = new Console();
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -29,18 +29,18 @@ public class ActionBroadcastReceiver extends BroadcastReceiver {
                     .get(action.getRadical(), action.getValue())
                     .thenAccept(response -> {
                         if (response.isSuccessful()) {
-                            Logger.Info(new Info<>("Action tracked successfully "));
+                            console.info(new Info<>("Action tracked successfully "));
                             return;
                         }
-                        Logger.Error(new Error<>(new Exception("Action tracking failed - status code : " + response.code())));
+                        console.error(new Error<>(new Exception("Action tracking failed - status code : " + response.code())));
 
                     }).exceptionally((throwable -> {
-                        Logger.Error(new Error<>(throwable));
+                        console.error(new Error<>(throwable));
                         return null;
                     }));
 
         } catch (Exception exception) {
-            Logger.Error(new Error<>(exception));
+            console.error(new Error<>(exception));
         } finally {
             pendingResult.finish();
         }

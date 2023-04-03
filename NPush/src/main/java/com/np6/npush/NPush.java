@@ -5,12 +5,10 @@ import android.content.Context;
 import com.np6.npush.internal.Installation;
 import com.np6.npush.internal.NotificationCenter;
 import com.np6.npush.internal.api.InteractionApi;
-import com.np6.npush.internal.api.SubscriptionApi;
-import com.np6.npush.internal.core.Logger;
+import com.np6.npush.internal.core.logger.Console;
+import com.np6.npush.internal.core.logger.Logger;
 import com.np6.npush.internal.models.DeeplinkInterceptor;
-import com.np6.npush.internal.models.Subscription;
 import com.np6.npush.internal.models.action.TrackingAction;
-import com.np6.npush.internal.models.common.Result;
 import com.np6.npush.internal.models.contact.Linked;
 import com.np6.npush.internal.models.log.common.Error;
 import com.np6.npush.internal.models.log.common.Info;
@@ -19,11 +17,12 @@ import com.np6.npush.internal.provider.TokenProvider;
 import com.np6.npush.internal.repository.TokenRepository;
 
 import java.util.Map;
-import java.util.Objects;
 
 import java9.util.concurrent.CompletableFuture;
 
 public class NPush {
+
+    public static Logger console = new Console();
 
     private static NPush instance;
 
@@ -31,8 +30,7 @@ public class NPush {
 
     public DeeplinkInterceptor interceptor;
 
-    private NPush() {
-    }
+    private NPush() {}
 
     public Config getConfig() {
         return config;
@@ -71,12 +69,12 @@ public class NPush {
                     .getResultAsync()
                     .thenAccept(token -> TokenRepository.create(context).Add(token))
                     .exceptionally((throwable -> {
-                        Logger.Error(new Error<>(throwable));
+                        console.error(new Error<>(throwable));
                         return null;
                     }));
 
         } catch (Exception exception) {
-            Logger.Error(new Error<>(exception));
+            console.error(new Error<>(exception));
         }
     }
 
@@ -99,19 +97,19 @@ public class NPush {
                     .subscribe(linked)
                     .thenAccept(response -> {
                         if (response.isSuccessful()) {
-                            Logger.Info(new Info<>("Subscription created successfully"));
+                            console.info(new Info<>("Subscription created successfully"));
                             return;
                         }
-                        Logger.Error(new Error<>(new Exception("Subscription creation failed with http status code " + response.code())));
+                        console.error(new Error<>(new Exception("Subscription creation failed with http status code " + response.code())));
 
                     }).exceptionally((throwable -> {
-                        Logger.Error(new Error<>(throwable));
+                        console.error(new Error<>(throwable));
                         return null;
                     }));
 
 
         } catch (Exception exception) {
-            Logger.Error(new Error<>(exception));
+            console.error(new Error<>(exception));
         }
     }
 
@@ -139,18 +137,18 @@ public class NPush {
                     .get(action.getRadical(), action.getValue())
                     .thenAccept(response -> {
                         if (response.isSuccessful()) {
-                            Logger.Info(new Info<>("Action tracked successfully "));
+                            console.info(new Info<>("Action tracked successfully "));
                             return;
                         }
-                        Logger.Error(new Error<>(new Exception("Action tracking failed with status code : " + response.code())));
+                        console.error(new Error<>(new Exception("Action tracking failed with status code : " + response.code())));
 
                     }).exceptionally((throwable -> {
-                        Logger.Error(new Error<>(throwable));
+                        console.error(new Error<>(throwable));
                         return null;
                     }));
 
         } catch (Exception exception) {
-            Logger.Error(new Error<>(exception));
+            console.error(new Error<>(exception));
         }
     }
 
