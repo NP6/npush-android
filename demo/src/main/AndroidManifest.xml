@@ -26,10 +26,9 @@ package="com.np6.demo">
         android:exported="true"
         android:theme="@style/Theme.NPushApplication.NoActionBar">
         <intent-filter>
-            <action android:name="android.intent.action.VIEW" />
-
             <category android:name="android.intent.category.DEFAULT" />
-            <category android:name="android.intent.category.BROWSABLE" />
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
 
             <data
                 android:host="npush"
@@ -114,16 +113,6 @@ package="com.np6.demo">
         android:name="com.google.firebase.messaging.default_notification_color"
         android:resource="@mipmap/ic_launcher" />
 
-    <activity
-        android:name=".ui.login.LoginActivity"
-        android:exported="true"
-        android:label="@string/title_activity_login">
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
-
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
-    </activity>
 </application>
 
 </manifest>

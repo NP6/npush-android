@@ -26,6 +26,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 
+import java9.util.concurrent.CompletableFuture;
+
 public class NotificationCenter {
 
 
@@ -35,45 +37,72 @@ public class NotificationCenter {
 
     NotificationManager notificationManager;
 
+    NotificationManagerCompat notificationManagerCompat;
+
     public static NotificationCenter initialize(Context context, Config config) {
-        if (Objects.isNull(context))
+        if (context == null)
             throw new IllegalArgumentException();
 
-        return new NotificationCenter(context, config);
-    }
+        if (config == null)
+            throw new IllegalArgumentException();
 
-    private NotificationCenter(Context context, Config config) {
-        this.builder = new NotificationBuilder(context, config);
-        this.config = config;
-        this.notificationManager = (NotificationManager)
+        NotificationBuilder notificationBuilder = NotificationBuilder.create(context, config);
+
+        NotificationManager notificationManager = (NotificationManager)
                 context.getSystemService(Context.NOTIFICATION_SERVICE);
 
+        NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
+
+        return new NotificationCenter( config, notificationBuilder, notificationManager, notificationManagerCompat);
+    }
+
+    public NotificationCenter(
+            Config config,
+            NotificationBuilder notificationBuilder,
+            NotificationManager notificationManager,
+            NotificationManagerCompat notificationManagerCompat)
+    {
+        this.builder = notificationBuilder;
+        this.config = config;
+        this.notificationManager = notificationManager;
+        this.notificationManagerCompat = notificationManagerCompat;
     }
 
     public static Notification fromRemoteMessage(Map<String, String> remoteMessage) throws JsonProcessingException {
         return parse(remoteMessage);
     }
 
-    public void submit(Notification notification, Completion<TrackingAction<String>> completion) {
+    public CompletableFuture<TrackingAction<String>> submit(Notification notification) {
         try  {
-
-            TrackingAction<String> action = notification.getTracking().getImpressionAction();
 
             android.app.Notification builtNotification = this.build(notification);
 
+            if (!isNotificationEnabled()) {
+                TrackingAction<String> bounceAction = notification.getTracking().getGlobalOptoutAction();
+                return CompletableFuture.completedFuture(bounceAction);
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                if (isNotificationEnabled() && !isNotificationChannelEnabled(notification.getMeta().getChannelId())) {
+                    TrackingAction<String> bounceAction = notification.getTracking().getChannelOptoutAction();
+                    return CompletableFuture.completedFuture(bounceAction);
+                }
+            }
+
             this.notificationManager.notify(new Random().nextInt(), builtNotification);
 
-            completion.onComplete(
-                    new Result.Success<>(action));
+            TrackingAction<String> impressionAction = notification.getTracking().getImpressionAction();
+
+            return CompletableFuture.completedFuture(impressionAction);
         } catch (Exception exception) {
-            completion.onComplete(new Result.Error<>(exception));
+            return CompletableFuture.failedFuture(exception);
         }
     }
 
-    private android.app.Notification build(final Notification notification) throws Exception {
+    public android.app.Notification build(Notification notification) throws Exception {
 
         this.builder
-                .SetContent(notification.getRender().title, notification.getRender().body)
+                .SetContent(notification.getRender().getTitle(), notification.getRender().getBody())
                 .setDeeplink(notification.getMeta().getRedirection(), notification.getTracking())
                 .setDismiss(notification.getTracking())
                 .setIcon();
@@ -81,7 +110,7 @@ public class NotificationCenter {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
             final String channel =
-                    Objects.isNull(notification.getMeta().getChannelId()) || notification.getMeta().getChannelId().isEmpty()
+                    notification.getMeta().getChannelId()  == null || notification.getMeta().getChannelId().isEmpty()
                             ? config.getDefaultChannel()
                             : notification.getMeta().getChannelId();
 
@@ -91,7 +120,7 @@ public class NotificationCenter {
         return this.builder.build();
     }
 
-    private static Notification parse(Map<String, String> remoteMessage) throws JsonProcessingException {
+    public static Notification parse(Map<String, String> remoteMessage) throws JsonProcessingException {
 
         Serializer serializer = new Serializer();
 
@@ -106,23 +135,21 @@ public class NotificationCenter {
     }
 
 
-    public static boolean isNotificationEnabled(Context context) {
-        return NotificationManagerCompat.from(context).areNotificationsEnabled();
+    public boolean isNotificationEnabled() {
+        return this.notificationManagerCompat.areNotificationsEnabled();
     }
 
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public boolean isNotificationChannelEnabled(
-            Context context,
-            @Nullable String channelId) {
+    public boolean isNotificationChannelEnabled(@Nullable String channelId) {
 
-        NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        NotificationChannel channel = manager.getNotificationChannel(channelId);
-        if (channel != null) {
-            return channel.getImportance() != NotificationManager.IMPORTANCE_NONE;
-        } else {
-            return true;
+        NotificationChannel channel = this.notificationManager.getNotificationChannel(channelId);
+
+        if (channel == null) {
+            return false;
         }
+
+        return channel.getImportance() != NotificationManager.IMPORTANCE_NONE;
     }
 
 }

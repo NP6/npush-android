@@ -3,12 +3,12 @@ package com.np6.npush;
 import android.content.Context;
 
 import com.np6.npush.internal.Installation;
-import com.np6.npush.internal.Interaction;
 import com.np6.npush.internal.NotificationCenter;
-import com.np6.npush.internal.core.Logger;
+import com.np6.npush.internal.api.InteractionApi;
+import com.np6.npush.internal.core.logger.Console;
+import com.np6.npush.internal.core.logger.Logger;
 import com.np6.npush.internal.models.DeeplinkInterceptor;
 import com.np6.npush.internal.models.action.TrackingAction;
-import com.np6.npush.internal.models.common.Result;
 import com.np6.npush.internal.models.contact.Linked;
 import com.np6.npush.internal.models.log.common.Error;
 import com.np6.npush.internal.models.log.common.Info;
@@ -17,9 +17,12 @@ import com.np6.npush.internal.provider.TokenProvider;
 import com.np6.npush.internal.repository.TokenRepository;
 
 import java.util.Map;
-import java.util.Objects;
+
+import java9.util.concurrent.CompletableFuture;
 
 public class NPush {
+
+    public static Logger console = new Console();
 
     private static NPush instance;
 
@@ -27,7 +30,7 @@ public class NPush {
 
     public DeeplinkInterceptor interceptor;
 
-    private NPush() { }
+    private NPush() {}
 
     public Config getConfig() {
         return config;
@@ -37,9 +40,10 @@ public class NPush {
         this.interceptor = interceptor;
     }
 
-    public void setConfig(Config config) {
+    public synchronized void setConfig(Config config) {
         this.config = config;
     }
+
 
     public static NPush Instance() {
         synchronized (NPush.class) {
@@ -52,101 +56,99 @@ public class NPush {
 
     public synchronized void initialize(Context context) {
         try {
-            if (Objects.isNull(context)) {
+            if (context == null) {
                 throw new IllegalArgumentException("context must be specified");
             }
 
-            if (Objects.isNull(config)) {
+            if (config == null) {
                 throw new IllegalArgumentException("config must be specified");
             }
 
             TokenProvider
                     .getProvider(context)
-                    .getResultAsync((result -> {
-
-                        if (result instanceof Result.Error)
-                            Logger.Error(new Error<>(((Result.Error) result).exception));
-
-                        if (result instanceof Result.Success)
-                            TokenRepository
-                                    .Create(context)
-                                    .Add(((Result.Success<String>) result).data);
-                            Logger.Info(new Info<>("Token generate succeed "));
+                    .getResultAsync()
+                    .thenAccept(token -> TokenRepository.create(context).Add(token))
+                    .exceptionally((throwable -> {
+                        console.error(new Error<>(throwable));
+                        return null;
                     }));
+
         } catch (Exception exception) {
-            Logger.Error(new Error<>(exception));
+            console.error(new Error<>(exception));
         }
     }
 
-
     public synchronized void setContact(Context context, Linked linked) {
         try {
-            if (Objects.isNull(context))
+            if (context == null)
                 throw new IllegalArgumentException("context must be specified");
 
 
-            if (Objects.isNull(linked))
+            if (linked == null)
                 throw new IllegalArgumentException("linked must be specified");
 
 
-            if (Objects.isNull(this.config))
+            if (this.config == null)
                 throw new IllegalArgumentException("config must be specified");
 
 
             Installation
-                    .initialize(context, this.config)
-                    .subscribe(linked, result -> {
-
-                        if (result instanceof Result.Error)
-                            Logger.Error(new Error<>(((Result.Error) result).exception));
-
-                        if (result instanceof Result.Success) {
-                            Logger.Info(new Info<>("Subscription created successfully"));
+                    .create(context, this.config)
+                    .subscribe(linked)
+                    .thenAccept(response -> {
+                        if (response.isSuccessful()) {
+                            console.info(new Info<>("Subscription created successfully"));
+                            return;
                         }
-                    });
+                        console.error(new Error<>(new Exception("Subscription creation failed with http status code " + response.code())));
+
+                    }).exceptionally((throwable -> {
+                        console.error(new Error<>(throwable));
+                        return null;
+                    }));
+
+
         } catch (Exception exception) {
-            Logger.Error(new Error<>(exception));
+            console.error(new Error<>(exception));
         }
     }
 
     public synchronized void handleNotification(Context context, Map<String, String> remoteData) {
         try {
-
-            if (Objects.isNull(context))
+            if (context == null)
                 throw new IllegalArgumentException("context must be specified");
 
-            if (Objects.isNull(remoteData))
+            if (remoteData == null)
                 throw new IllegalArgumentException("remoteData must be specified");
 
-            if (Objects.isNull(this.config))
+            if (this.config == null)
                 throw new IllegalArgumentException("config must be specified");
 
             Notification notification = NotificationCenter.fromRemoteMessage(remoteData);
 
+            NotificationCenter notificationCenter = NotificationCenter.initialize(context, this.config);
 
-            NotificationCenter
-                    .initialize(context, this.config)
-                    .submit(notification, (result) -> {
+            CompletableFuture<TrackingAction<String>> future = notificationCenter.submit(notification);
 
-                        if (result instanceof Result.Error)
-                            Logger.Error(new Error<>(((Result.Error) result).exception));
+            TrackingAction<String> action = future.get();
 
-                        if (result instanceof Result.Success) {
-
-                            TrackingAction<String> action = ((Result.Success<TrackingAction<String>>) result).data;
-
-                            Interaction.handle(action, (actionResult) -> {
-                                if (actionResult instanceof Result.Error)
-                                    Logger.Error(new Error<>(((Result.Error) result).exception));
-
-                                if (actionResult instanceof Result.Success)
-                                    Logger.Info(new Info<>("action tracked successfully"));
-
-                            });
+            InteractionApi
+                    .create()
+                    .get(action.getRadical(), action.getValue())
+                    .thenAccept(response -> {
+                        if (response.isSuccessful()) {
+                            console.info(new Info<>("Action tracked successfully "));
+                            return;
                         }
-                    });
+                        console.error(new Error<>(new Exception("Action tracking failed with status code : " + response.code())));
+
+                    }).exceptionally((throwable -> {
+                        console.error(new Error<>(throwable));
+                        return null;
+                    }));
+
         } catch (Exception exception) {
-            Logger.Error(new Error<>(exception));
+            console.error(new Error<>(exception));
         }
     }
 

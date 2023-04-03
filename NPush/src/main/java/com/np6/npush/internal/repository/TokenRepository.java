@@ -9,29 +9,28 @@ import com.np6.npush.internal.core.persistence.Storage;
 public class TokenRepository implements Repository<String> {
 
 
-    private static final String TOKEN_KEY = "token";
+    public static final String TOKEN_KEY = "token";
 
     private final Storage storage;
 
-    public static TokenRepository Create(Context context) {
-        return new TokenRepository(context);
+    public static TokenRepository create(Context context) {
+        SharedPreferenceStorage sharedPreferenceStorage = new SharedPreferenceStorage(Constants.Repository.TOKEN_REPOSITORY_NAMESPACE, context);
+        return new TokenRepository(sharedPreferenceStorage);
     }
 
-    private TokenRepository(Context context) {
-        this.storage = new SharedPreferenceStorage(Constants.Repository.TOKEN_REPOSITORY_NAMESPACE, context);
+    public TokenRepository(SharedPreferenceStorage sharedPreferenceStorage) {
+        this.storage = sharedPreferenceStorage;
     }
 
     @Override
     public String Get() {
-            String token = this.storage.fetch(TOKEN_KEY);
-            return token;
-
+        return this.storage.fetch(TOKEN_KEY);
     }
 
     @Override
     public String Add(String token) {
-            this.storage.put(TOKEN_KEY, token);
-            return token;
+        this.storage.put(TOKEN_KEY, token);
+        return token;
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.np6.npush.internal.models.gateway;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,

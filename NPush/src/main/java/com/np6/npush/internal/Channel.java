@@ -48,6 +48,11 @@ public class Channel {
     }
 
     public static NotificationChannel getChannel(Context context, String channelId) {
+
+        if (channelId == null || channelId.isEmpty()) {
+            throw new IllegalArgumentException();
+        }
+
         NotificationManager notificationManager =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -55,13 +60,4 @@ public class Channel {
 
     }
 
-    public static String getChannelOrDefault(Context context, String channelId) {
-
-        if (channelId == null) {
-            return createChannel(context, NPush.Instance().getConfig().getDefaultChannel(), "Communication channel").getId();
-        }
-
-        return createChannel(context, channelId, "Communication channel").getId();
-
-    }
 }

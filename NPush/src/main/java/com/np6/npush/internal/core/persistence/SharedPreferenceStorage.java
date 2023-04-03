@@ -7,7 +7,7 @@ public class SharedPreferenceStorage implements Storage {
 
     private final SharedPreferences preferences;
 
-    private static final String DEFAULT = "DEFAULT_VALUE";
+    public static final String DEFAULT = "DEFAULT_VALUE";
 
     public SharedPreferenceStorage(String namespace, Context context) {
         this.preferences = context.getSharedPreferences(namespace, Context.MODE_PRIVATE);

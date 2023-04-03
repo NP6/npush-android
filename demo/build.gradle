@@ -7,12 +7,12 @@ apply plugin: 'com.google.gms.google-services'
 
 
 android {
-    compileSdk 32
+    compileSdk 33
 
     defaultConfig {
         applicationId "com.np6.demo"
-        minSdk 19
-        targetSdk 32
+        minSdk 21
+        targetSdk 33
         versionCode 1
         versionName "0.0.4"
         multiDexEnabled true
@@ -21,7 +21,6 @@ android {
     }
 
     buildTypes {
-
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'

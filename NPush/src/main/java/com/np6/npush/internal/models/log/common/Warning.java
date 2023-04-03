@@ -1,18 +1,15 @@
 package com.np6.npush.internal.models.log.common;
 
-import android.os.Build;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.np6.npush.internal.models.log.Log;
 
-public class Error <T> extends Log {
-
+public class Warning<T> extends Log {
 
     public T value;
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-    public Error(@JsonProperty("value") T value) {
+    public Warning(@JsonProperty("value") T value) {
         this.value = value;
     }
 

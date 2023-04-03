@@ -1,6 +1,7 @@
 package com.np6.npush.internal;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -20,6 +21,7 @@ import com.np6.npush.internal.system.TransparentActivity;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class NotificationBuilder {
 
@@ -27,13 +29,29 @@ public class NotificationBuilder {
 
     NotificationCompat.Builder nativeBuilder;
 
-    public NotificationBuilder(Context context, Config config) {
+    public static NotificationBuilder create(Context context, Config config) {
+
+        NotificationCompat.Builder nativeBuilder = new NotificationCompat.Builder(context, config.getDefaultChannel());
+
+        return new NotificationBuilder(context, nativeBuilder);
+    }
+
+    public NotificationBuilder(Context context, NotificationCompat.Builder nativeBuilder) {
         this.context = context;
-        this.nativeBuilder = new NotificationCompat.Builder(context, config.getDefaultChannel());
+        this.nativeBuilder = nativeBuilder;
         this.nativeBuilder.setAutoCancel(true);
     }
 
     public NotificationBuilder SetContent(String title, String body) {
+
+        if (title == null || title.isEmpty()) {
+            throw new IllegalArgumentException();
+        }
+
+        if (body == null || body.isEmpty()) {
+            throw new IllegalArgumentException();
+        }
+
         this.nativeBuilder
                 .setContentText(body)
                 .setContentTitle(title)
@@ -51,7 +69,14 @@ public class NotificationBuilder {
 
     public NotificationBuilder setChannel(String channelId) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            nativeBuilder.setChannelId(Channel.getChannelOrDefault(context, channelId));
+
+            if (Channel.getChannel(context, channelId) == null) {
+                return this;
+            }
+
+            String channel = Channel.getChannel(context, channelId).getId();
+
+            nativeBuilder.setChannelId(channel);
         }
         return this;
     }
@@ -80,6 +105,7 @@ public class NotificationBuilder {
 
         Intent dismissIntent = IntentHelper.CreateIntent(context, Constants.Intent.INTENT_DISMISS_INTENT, ActionBroadcastReceiver.class, data);
         PendingIntent dismissPendingIntent = IntentHelper.CreatePendingBroadcastIntent(context, dismissIntent);
+
         this.nativeBuilder.setDeleteIntent(dismissPendingIntent);
 
         return this;

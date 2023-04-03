@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
     <domain-config   cleartextTrafficPermitted="true">
-        <domain includeSubdomains="true">cm-push.kube.dev.np6.com</domain>
-        <domain includeSubdomains="true">cm.dev.np6.com</domain>
-        <domain includeSubdomains="true">tracking.dev.np6.com</domain>
+        <domain includeSubdomains="true">np6.com</domain>
     </domain-config>
 </network-security-config>

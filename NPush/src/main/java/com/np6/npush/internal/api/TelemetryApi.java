@@ -1,14 +1,12 @@
 package com.np6.npush.internal.api;
 
 
-import android.os.Build;
-
 import androidx.annotation.NonNull;
+
 import com.np6.npush.internal.core.Constants;
 import com.np6.npush.internal.core.Serializer;
 import com.np6.npush.internal.core.network.HttpClient;
 import com.np6.npush.internal.core.network.driver.Driver;
-import com.np6.npush.internal.models.Subscription;
 
 
 import java.io.IOException;
@@ -22,20 +20,20 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class SubscriptionApi {
+public class TelemetryApi {
 
     private final Driver driver;
 
     private final String basePath;
 
-    public SubscriptionApi(String identity, Driver driver) {
+    public TelemetryApi(String identity, Driver driver) {
         String agency = identity.substring(0, 4);
         String customer = identity.substring(4, 7);
-        this.basePath = Constants.WebServices.Subscription_Endpoint + agency + "/" + customer + "/subscriptions";
+        this.basePath = Constants.WebServices.Telemetry_Endpoint + agency + "/" + customer + "/telemetry";
         this.driver = driver;
     }
 
-    public static SubscriptionApi create(String identity) {
+    public static TelemetryApi create(String identity) {
 
         if (identity == null || identity.isEmpty()) {
             throw new IllegalArgumentException();
@@ -43,16 +41,16 @@ public class SubscriptionApi {
 
         Driver driver = new Driver(HttpClient.Create());
 
-        return new SubscriptionApi(identity, driver);
+        return new TelemetryApi(identity, driver);
     }
 
-    public CompletableFuture<Response> put(Subscription subscription) {
+    public CompletableFuture<Response> log(final com.np6.npush.internal.models.log.Log log) {
 
         CompletableFuture<Response> future = new CompletableFuture<>();
 
         try {
             Serializer serializer = new Serializer();
-            String payload = serializer.serialize(subscription);
+            String payload = serializer.serialize(log);
 
             RequestBody body = RequestBody.create(
                     payload,
@@ -85,4 +83,5 @@ public class SubscriptionApi {
         }
         return future;
     }
+
 }

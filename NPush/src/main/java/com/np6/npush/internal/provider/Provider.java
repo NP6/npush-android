@@ -1,9 +1,9 @@
 package com.np6.npush.internal.provider;
 
-import com.np6.npush.internal.models.common.Completion;
+import java9.util.concurrent.CompletableFuture;
 
 public interface Provider<T> {
 
-    void getResultAsync(Completion<T> completion);
+    CompletableFuture<T> getResultAsync();
 
 }

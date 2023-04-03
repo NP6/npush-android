@@ -22,7 +22,7 @@ steps:
     jdkArchitectureOption: 'x64'
     publishJUnitResults: true
     testResultsFiles: '**/TEST-*.xml'
-    tasks: 'build'
+    tasks: ':NPush:build'
 
 - task: Gradle@2
   displayName: 'Assemble for Debug'

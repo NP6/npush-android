@@ -4,65 +4,74 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import com.np6.npush.internal.Interaction;
+import com.np6.npush.internal.api.InteractionApi;
 import com.np6.npush.internal.core.Constants;
-import com.np6.npush.internal.core.Logger;
+import com.np6.npush.internal.core.logger.Console;
+import com.np6.npush.internal.core.logger.Logger;
 import com.np6.npush.internal.models.action.TrackingAction;
-import com.np6.npush.internal.models.common.Result;
 import com.np6.npush.internal.models.log.common.Error;
 import com.np6.npush.internal.models.log.common.Info;
 
 public class ActionBroadcastReceiver extends BroadcastReceiver {
+
+    public static Logger console = new Console();
 
     @Override
     public void onReceive(Context context, Intent intent) {
         final PendingResult pendingResult = goAsync();
 
         try {
-            switch (intent.getAction()) {
-                case Constants.Intent.INTENT_DISMISS_INTENT:
-                    CreateDismissAction(intent);
-                    return;
-                case Constants.Intent.INTENT_REDIRECTION_INTENT:
-                    CreateRedicretionAction(intent);
-            }
+            TrackingAction<String> action = parse(intent);
+
+            InteractionApi interactionApi = InteractionApi.create();
+
+            interactionApi
+                    .get(action.getRadical(), action.getValue())
+                    .thenAccept(response -> {
+                        if (response.isSuccessful()) {
+                            console.info(new Info<>("Action tracked successfully "));
+                            return;
+                        }
+                        console.error(new Error<>(new Exception("Action tracking failed - status code : " + response.code())));
+
+                    }).exceptionally((throwable -> {
+                        console.error(new Error<>(throwable));
+                        return null;
+                    }));
+
         } catch (Exception exception) {
-            Logger.Error(new Error<>(exception));
+            console.error(new Error<>(exception));
         } finally {
             pendingResult.finish();
         }
     }
 
-    private void CreateRedicretionAction(Intent intent) {
-        final String redirection = intent.getStringExtra(Constants.Extra.BUNDLE_KEY_REDIRECTION_KEY);
-        final String radical = intent.getStringExtra(Constants.Extra.BUNDLE_RADICAL_KEY);
-
-        TrackingAction<String> action = new TrackingAction<>(redirection, radical);
-
-        Interaction.handle(action, (result) -> {
-            if (result instanceof Result.Error)
-                Logger.Error(new Error<>(((Result.Error) result).exception));
-
-            if (result instanceof Result.Success)
-                Logger.Info(new Info<>("action tracked successfully"));
-
-        });
+    public static String parseAction(Intent intent) throws Exception {
+        switch (intent.getAction()) {
+            case Constants.Intent.INTENT_DISMISS_INTENT:
+                return intent.getStringExtra(Constants.Extra.BUNDLE_KEY_DISMISS_KEY);
+            case Constants.Intent.INTENT_REDIRECTION_INTENT:
+                return intent.getStringExtra(Constants.Extra.BUNDLE_KEY_REDIRECTION_KEY);
+            default:
+                throw new Exception("unknown intent action key");
+        }
     }
 
+    public static TrackingAction<String> parse(Intent intent) throws Exception {
 
-    private void CreateDismissAction(Intent intent) {
-        final String dismiss = intent.getStringExtra(Constants.Extra.BUNDLE_KEY_DISMISS_KEY);
         final String radical = intent.getStringExtra(Constants.Extra.BUNDLE_RADICAL_KEY);
 
-        TrackingAction<String> action = new TrackingAction<>(dismiss, radical);
-        Interaction.handle(action, (result) -> {
-            if (result instanceof Result.Error)
-                Logger.Error(new Error<>(((Result.Error) result).exception));
+        if (radical == null || radical.isEmpty()) {
+            throw new IllegalArgumentException("radical cannot be null or empty");
+        }
 
-            if (result instanceof Result.Success)
-                Logger.Info(new Info<>("action tracked successfully"));
+        final String action = parseAction(intent);
 
-        });
+        if (action == null || action.isEmpty()) {
+            throw new IllegalArgumentException("radical cannot be null or empty");
+        }
+
+        return new TrackingAction<>(action, radical);
 
     }
 }

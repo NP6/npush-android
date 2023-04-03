@@ -1,23 +1,24 @@
 package com.np6.npush.internal;
 
 import android.content.Context;
-import android.os.Build;
 
 import com.np6.npush.Config;
-import com.np6.npush.internal.api.Api;
 import com.np6.npush.internal.api.SubscriptionApi;
 import com.np6.npush.internal.models.Subscription;
-import com.np6.npush.internal.models.common.Completion;
-import com.np6.npush.internal.models.common.Result;
 import com.np6.npush.internal.models.contact.Linked;
 import com.np6.npush.internal.models.gateway.Firebase;
+import com.np6.npush.internal.models.gateway.Gateway;
+import com.np6.npush.internal.models.log.common.Error;
+import com.np6.npush.internal.models.log.common.Info;
 import com.np6.npush.internal.repository.IdentifierRepository;
 import com.np6.npush.internal.repository.TokenRepository;
 
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+
+import java9.util.concurrent.CompletableFuture;
+import okhttp3.Response;
 
 public class Installation {
 
@@ -27,53 +28,70 @@ public class Installation {
 
     private final IdentifierRepository identifierRepository;
 
-    public static Installation initialize(Context context, Config config) {
+    private final SubscriptionApi subscriptionApi;
 
-        if (Objects.isNull(config)) {
+    public static Installation create(Context context, Config config) {
+
+        if (config == null) {
             throw new IllegalArgumentException();
         }
 
-        if (Objects.isNull(context)) {
+        if (context == null) {
             throw new IllegalArgumentException();
         }
 
-        return new Installation(context, config);
+        TokenRepository tokenRepository = TokenRepository.create(context);
+
+        IdentifierRepository identifierRepository = IdentifierRepository.create(context);
+
+        SubscriptionApi subscriptionApi =  SubscriptionApi.create(config.getIdentity());
+
+        return new Installation(config, tokenRepository, identifierRepository, subscriptionApi);
     }
 
-    private Installation(Context context, Config config) {
+    public Installation(
+            Config config,
+            TokenRepository tokenRepository,
+            IdentifierRepository identifierRepository,
+            SubscriptionApi subscriptionApi)
+    {
         this.config = config;
-        this.tokenRepository = TokenRepository.Create(context);
-        this.identifierRepository = IdentifierRepository.Create(context);
+        this.tokenRepository = tokenRepository;
+        this.identifierRepository = identifierRepository;
+        this.subscriptionApi = subscriptionApi;
     }
 
 
-    public void subscribe(Linked linked, Completion<Subscription> completion) {
-        try  {
+    public CompletableFuture<Response> subscribe(Linked linked) {
+
+        try {
+            if (linked == null)
+                throw new IllegalArgumentException("linked cannot be null");
 
             String token = this.tokenRepository.Get();
 
-            if (Objects.isNull(token))
-                throw new IllegalArgumentException("token is null");
+            if (token == null || token.isEmpty())
+                throw new IllegalArgumentException("token cannot be null or empty");
+
+            Firebase gateway = new Firebase(token);
 
             Subscription subscription = new Subscription()
-                    .setId(this.getIdentifer())
+                    .setId(this.getIdentifier())
                     .setApplication(config.getApplication())
-                    .setGateway(new Firebase(token))
+                    .setGateway(gateway)
                     .setLinked(linked)
                     .setProtocol("1.0.0")
                     .setCulture(Locale.getDefault().getLanguage());
 
-            SubscriptionApi api = new SubscriptionApi(config.getIdentity());
-
-            api.put(subscription, completion);
+            return this.subscriptionApi.put(subscription);
 
         } catch (Exception exception) {
-            completion.onComplete(new Result.Error<>(exception));
+            return CompletableFuture.failedFuture(exception);
         }
     }
 
 
-    private UUID getIdentifer() {
+    public UUID getIdentifier() {
         return this.identifierRepository.Exist()
                 ? this.identifierRepository.Get()
                 : this.identifierRepository.Add(UUID.randomUUID());

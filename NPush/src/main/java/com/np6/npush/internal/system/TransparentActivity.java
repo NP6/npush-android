@@ -10,7 +10,8 @@ import android.os.Build;
 import com.np6.npush.NPush;
 import com.np6.npush.internal.core.Constants;
 import com.np6.npush.internal.core.IntentHelper;
-import com.np6.npush.internal.core.Logger;
+import com.np6.npush.internal.core.logger.Console;
+import com.np6.npush.internal.core.logger.Logger;
 import com.np6.npush.internal.models.DeeplinkInterceptor;
 import com.np6.npush.internal.models.log.common.Error;
 
@@ -18,6 +19,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class TransparentActivity extends Activity {
+
+    public static Logger console = new Console();
 
     @Override
     protected void onStart() {
@@ -31,7 +34,7 @@ public class TransparentActivity extends Activity {
             finish();
 
         } catch (Exception exception) {
-            Logger.Error(new Error<>(exception));
+            console.error(new Error<>(exception));
             finish();
         }
     }
