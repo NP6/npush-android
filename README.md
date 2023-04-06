@@ -1,12 +1,14 @@
 # NP6 android - SDK 
 
+[![](https://jitpack.io/v/NP6/npush-android.svg)](https://jitpack.io/#NP6/npush-android)
+
 ## Introduction 
 This library is a part of NP6 Push Notifications service, it allows interactions with users via Push Notifications sent via NP6 CM. 
 
 ## Table of content
 1.	[Prerequisites](#prerequisites)
-2.	[Installation](#installation )
-3.	[Troubleshooting]()
+2.	[Installation](#installation)
+3.	[Troubleshooting](#troubleshooting)
 
 ## Prerequisites
 Here are all the steps needed before installing NPush SDK.
@@ -117,13 +119,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven {
-            url = uri("https://maven.pkg.github.com/np6/npush-android")
-            credentials {
-                username = "<whatever you want>"
-                password = "<PAT>"
-            }
-        }
+		maven { url 'https://jitpack.io' }
     }
 }
 ```
@@ -131,7 +127,7 @@ dependencyResolutionManagement {
 In **\<app\>/build.gradle** :
 ```gradle
 dependencies {
-   implementation 'com.np6.npush:npush:0.0.2'
+	implementation 'com.github.NP6:npush-android:latest'
 }
 ```
 
@@ -169,6 +165,7 @@ Before the next steps be sure to have the following informations :
 * a default notification channel
 * activities that will be used in the stackBuilder for deeplink
 
+
 In MainActivity class, modify onCreate method with the following lines : 
 
 ```java
@@ -176,14 +173,66 @@ In MainActivity class, modify onCreate method with the following lines :
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Config config = new Config("<your-application-id>", "<your-identity>", "<your-channel>");
-        NPush.Instance().SetConfig(config);
+        Config config = new Config("<your-application-id>", "<your-identity>", "<your-channel>", false);
+        NPush.Instance().setConfig(config);
 
         ...
    }
 ```
-### Deeplinking 
 
+### Initialization
+
+Now that Config is set. Call **initialize** method as follow : 
+
+```java
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        ...
+        NPush.Instance().initialize(this);
+   }
+```
+
+
+### Attach contact to device subscription 
+
+Suppose we have an application with a login & register form and we want to attach the current device subscription to the logged user.
+We can only identify the users by hash, id or unicity criteria. 
+
+**Note : All of these identifiers are strongly linked to the NP6 CM platform.**
+
+Please be sure to have one of this 3 identifiers in your user representation before continue. 
+
+##### Example attaching device subscription by hash
+```java
+            
+    NPush.Instance().SetContact(context, new ContactHashRepresentation(data.hash));
+        
+```
+
+##### Example attaching device subscription by unicity
+```java
+    
+    NPush.Instance().SetContact(context, new ContactUnicityRepresentation(data.unicity));
+        
+```
+
+##### Example attaching device subscription by id
+```java
+            
+    NPush.Instance().SetContact(context, new ContactIdRepresentation(data.id));
+        
+```
+
+If everything is done. You will see the following lines in your application log :
+
+```
+I/np6-messaging: Subscription created successfully
+```
+ 
+
+## Advanced 
+
+### Deeplinking 
 
 In order to handle deeplink by our way, set a custom deeplink interceptor as follow : 
 
@@ -212,44 +261,63 @@ In order to handle deeplink by our way, set a custom deeplink interceptor as fol
         })
 ```
 
-### Attach contact to device subscription 
+## Troubleshooting
 
-Suppose we have an application with a login & register form and we want to attach the current device subscription to the logged user.
-We can only identify the users by hash, id or unicity criteria. 
+### Common issues 
 
-**Note : All of these identifiers are strongly linked to the NP6 CM platform.**
+In this part we will see how solve commons problems.  
 
-Please be sure to have one of this 3 identifiers in your user representation before continue. 
 
-##### Example attaching device subscription by hash
-```java
-        Result<LoggedInUser> result = loginRepository.login(context, username, password);
+If after calling **NPush.Instance().setContact(...)** one of the following message appears :
 
-        if (result instanceof Result.Success) {
-            LoggedInUser data = ((Result.Success<LoggedInUser>) result).getData();
-            
-            NPush.Instance().SetContact(context, new ContactHashRepresentation(data.hash));
-        }
+```
+E/np6-messaging: context must be specified
 ```
 
-##### Example attaching device subscription by unicity
-```java
-        Result<LoggedInUser> result = loginRepository.login(context, username, password);
+Solution : Please ensure arguments passed to the function are not null
 
-        if (result instanceof Result.Success) {
-            LoggedInUser data = ((Result.Success<LoggedInUser>) result).getData();
-            
-            NPush.Instance().SetContact(context, new ContactUnicityRepresentation(data.unicity));
-        }
+```
+E/np6-messaging: linked must be specified
 ```
 
-##### Example attaching device subscription by id
-```java
-        Result<LoggedInUser> result = loginRepository.login(context, username, password);
+Solution : Please ensure arguments passed to the function are not null
 
-        if (result instanceof Result.Success) {
-            LoggedInUser data = ((Result.Success<LoggedInUser>) result).getData();
-            
-            NPush.Instance().SetContact(context, new ContactIdRepresentation(data.id));
-        }
 ```
+E/np6-messaging: config must be specified
+```
+
+Solution : Ensure NPush.Instance().setConfig method is called before call setContact
+
+```
+E/np6-messaging: Subscription creation failed with http status code ...
+```
+Solution : Verify device network state and network security policy. If problem persist call np6 support.
+
+
+### Error messages on calling **NPush.Instance().initialize()**
+
+If after calling **initialize** one of the following message appears :
+
+```
+E/np6-messaging: context must be specified
+``` 
+Solution : Please ensure arguments passed to the function are not null
+
+```
+E/np6-messaging: config must be specified
+```
+Solution : Ensure NPush.Instance().setConfig method is called before call setContact
+
+
+If after calling **NPush.Instance().handleNotification(..)** one of the following message appears :
+
+
+```
+E/np6-messaging: context must be specified
+``` 
+Solution : Please ensure arguments passed to the function are not null
+
+```
+E/np6-messaging: config must be specified
+```
+Solution : Ensure NPush.Instance().setConfig method is called before call setContact
