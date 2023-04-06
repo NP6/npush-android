@@ -327,6 +327,10 @@ public class NotificationCenterTest {
         Tracking trackingMock = Mockito.mock(Tracking.class);
         Render renderMock = Mockito.mock(Render.class);
 
+        android.app.Notification nativeNotification = Mockito.mock(android.app.Notification.class);
+
+        Mockito.when(nativeNotification.getChannelId()).thenReturn("test_channel");
+
         Mockito.when(metaMock.getChannelId()).thenReturn("test_channel");
 
         Notification fakeNotification = new Notification()
@@ -339,7 +343,7 @@ public class NotificationCenterTest {
         NotificationManager notificationManagerMock = Mockito.mock(NotificationManager.class);
         NotificationManagerCompat notificationManagerCompatMock = Mockito.mock(NotificationManagerCompat.class);
 
-
+        Mockito.when(notificationCompatBuilderMock.build()).thenReturn(nativeNotification);
         Mockito.when(notificationManagerCompatMock.areNotificationsEnabled()).thenReturn(true);
         Mockito.when(notificationManagerMock.getNotificationChannel(ArgumentMatchers.anyString())).thenReturn(null);
 
@@ -368,6 +372,10 @@ public class NotificationCenterTest {
         Tracking trackingMock = Mockito.mock(Tracking.class);
         Render renderMock = Mockito.mock(Render.class);
 
+        android.app.Notification nativeNotification = Mockito.mock(android.app.Notification.class);
+
+        Mockito.when(nativeNotification.getChannelId()).thenReturn("test_channel");
+
         Mockito.when(metaMock.getChannelId()).thenReturn("test_channel");
 
         Notification fakeNotification = new Notification()
@@ -382,6 +390,7 @@ public class NotificationCenterTest {
         NotificationManager notificationManagerMock = Mockito.mock(NotificationManager.class);
         NotificationManagerCompat notificationManagerCompatMock = Mockito.mock(NotificationManagerCompat.class);
 
+        Mockito.when(notificationCompatBuilderMock.build()).thenReturn(nativeNotification);
 
         Mockito.when(notificationManagerCompatMock.areNotificationsEnabled()).thenReturn(true);
         Mockito.when(notificationManagerMock.getNotificationChannel(ArgumentMatchers.anyString())).thenReturn(fakeChannel);
