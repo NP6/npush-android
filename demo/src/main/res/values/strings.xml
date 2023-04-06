@@ -25,4 +25,5 @@
     <string name="title_activity_product1">Product1Activity</string>
     <string name="title_activity_product2">Product2Activity</string>
     <string name="title_activity_product3">Product3Activity</string>
+    <string name="title_activity_main">MainActivity</string>
 </resources>

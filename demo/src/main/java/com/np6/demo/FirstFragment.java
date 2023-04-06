@@ -1,6 +1,5 @@
 package com.np6.demo;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,11 +9,11 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.np6.demo.databinding.FragmentProduct2Binding;
+import com.np6.demo.databinding.FragmentFirstBinding;
 
-public class Product2Fragment extends Fragment {
+public class FirstFragment extends Fragment {
 
-    private FragmentProduct2Binding binding;
+    private FragmentFirstBinding binding;
 
     @Override
     public View onCreateView(
@@ -22,7 +21,7 @@ public class Product2Fragment extends Fragment {
             Bundle savedInstanceState
     ) {
 
-        binding = FragmentProduct2Binding.inflate(inflater, container, false);
+        binding = FragmentFirstBinding.inflate(inflater, container, false);
         return binding.getRoot();
 
     }
@@ -30,11 +29,11 @@ public class Product2Fragment extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        binding.button2.setOnClickListener(new View.OnClickListener() {
+        binding.buttonFirst.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getActivity().getApplication(),ProductsActivity.class);
-                startActivity(intent);
+                NavHostFragment.findNavController(FirstFragment.this)
+                        .navigate(R.id.action_FirstFragment_to_SecondFragment);
             }
         });
     }

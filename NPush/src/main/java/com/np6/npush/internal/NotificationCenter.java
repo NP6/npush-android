@@ -83,7 +83,8 @@ public class NotificationCenter {
             }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                if (isNotificationEnabled() && !isNotificationChannelEnabled(notification.getMeta().getChannelId())) {
+
+                if (isNotificationEnabled() && !isNotificationChannelEnabled(builtNotification.getChannelId())) {
                     TrackingAction<String> bounceAction = notification.getTracking().getChannelOptoutAction();
                     return CompletableFuture.completedFuture(bounceAction);
                 }

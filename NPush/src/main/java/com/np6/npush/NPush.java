@@ -22,7 +22,7 @@ import java9.util.concurrent.CompletableFuture;
 
 public class NPush {
 
-    public static Logger console = new Console();
+    private static Logger console = new Console();
 
     private static NPush instance;
 
