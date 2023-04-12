@@ -86,17 +86,6 @@ steps:
     workingDirectory: '$(Agent.ToolsDirectory)'
 
 - task: CmdLine@2
-  displayName: 'Deploy debug application to Firebase'
-  condition: and(succeeded(), startsWith(variables['Build.SourceBranchName'], 'dev'))
-  inputs:
-    script: |
-      firebase appdistribution:distribute demo/build/outputs/apk/debug/demo-debug.apk \
-      --app "$(FIREBASE_APPID)" \
-      --token "$(FIREBASE_TOKEN)" \
-      --release-notes "Release note"
-    workingDirectory: ''
-
-- task: CmdLine@2
   displayName: 'Deploy release application to Firebase'
   condition: and(succeeded(), startsWith(variables['Build.SourceBranchName'], 'release'))
   inputs:
@@ -104,6 +93,6 @@ steps:
       firebase appdistribution:distribute demo/build/outputs/apk/release/demo-release-unsigned.apk \
       --app "$(FIREBASE_APPID)" \
       --token "$(FIREBASE_TOKEN)" \
-      --release-notes "Release note"
+      --release-notes "New release for demo application "
     workingDirectory: ''
 
