@@ -6,4 +6,5 @@ import android.content.Context;
 public interface DeeplinkInterceptor {
 
     public TaskStackBuilder getTaskStackBuilder(Context context, String deeplink);
+
 }

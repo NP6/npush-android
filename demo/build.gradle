@@ -21,7 +21,19 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField "String", "NP6_AGENCY", "\"MCOM032\""
+            buildConfigField "String", "NP6_APPLICATION", "\"c5d6993f-7e81-4039-8755-5b82694bf473\""
+
+            buildConfigField "String", "NP6_TARGET_API", "\"https://cm.dev.np6.com/experimentations/targets?unicity=\""
+            buildConfigField "String", "NP6_TARGET_API_KEY", "\"" + System.getenv("NP6_TARGET_API_KEY") + "\""
+        }
         release {
+            buildConfigField "String", "NP6_AGENCY", "\"MCOM0DD\""
+            buildConfigField "String", "NP6_APPLICATION", "\"113f1bab-d6ac-415d-9b7d-ee1cd20e3588\""
+
+            buildConfigField "String", "NP6_TARGET_API", "\"https://api-cm.np6.com/experimentations/targets?unicity=\""
+            buildConfigField "String", "NP6_TARGET_API_KEY", "\"" + System.getenv("NP6_TARGET_API_KEY") + "\""
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
