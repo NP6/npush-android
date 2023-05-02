@@ -34,9 +34,16 @@ import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
 
+
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+        setIntent(intent);
+
+
+        Toast.makeText(this, "Deeplink handled " + intent.getData(), Toast.LENGTH_LONG).show();
+
+        showIntentDeeplink(intent);
     }
 
     @Override
@@ -45,14 +52,23 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
 
-        final Button button = (Button) findViewById(R.id.button);
+        final Button button = findViewById(R.id.button);
         button.setOnClickListener(v -> {
-            final TextView contactValue = (TextView) findViewById(R.id.editText_linked);
 
-            JSONObject jsonObject = fetchContactData(contactValue.getText().toString());
+            try {
+                final TextView contactValue = (TextView) findViewById(R.id.editText_linked);
 
-            showContact(jsonObject);
+                JSONObject jsonObject = fetchContactData(contactValue.getText().toString());
 
+                String id = jsonObject.getString("id");
+
+                NPush.Instance().setContact(this, new ContactId(id));
+
+                showContact(jsonObject);
+
+            } catch (JSONException ignored) {
+
+            }
 
         });
 
@@ -82,8 +98,6 @@ public class MainActivity extends AppCompatActivity {
 
         NPush.Instance().initialize(this);
 
-        NPush.Instance().setContact(this, new ContactId("000T39KL"));
-
         showIntentDeeplink(getIntent());
     }
 
@@ -93,9 +107,12 @@ public class MainActivity extends AppCompatActivity {
 
         deeplinkTextView.setText("Deeplink : " + intent.getData());
 
+        Toast.makeText(this, "Deeplink handled " + intent.getData(), Toast.LENGTH_LONG).show();
+
+
     }
 
-    private void showContact(JSONObject object)  {
+    private void showContact(JSONObject object) {
         try {
             final TextView contactTextView = (TextView) findViewById(R.id.textView_contact);
             contactTextView.setText(" \n Contact Id: " + object.getString("id"));

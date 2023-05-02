@@ -29,8 +29,8 @@ android {
             buildConfigField "String", "NP6_TARGET_API_KEY", "\"" + System.getenv("NP6_TARGET_API_KEY") + "\""
         }
         release {
-            buildConfigField "String", "NP6_AGENCY", "\"MCOM0DD\""
-            buildConfigField "String", "NP6_APPLICATION", "\"113f1bab-d6ac-415d-9b7d-ee1cd20e3588\""
+            buildConfigField "String", "NP6_AGENCY", "\"MCOM032\""
+            buildConfigField "String", "NP6_APPLICATION", "\"5cc07522-366e-4b23-a62f-6da08ae14164\""
 
             buildConfigField "String", "NP6_TARGET_API", "\"https://api-cm.np6.com/experimentations/targets?unicity=\""
             buildConfigField "String", "NP6_TARGET_API_KEY", "\"" + System.getenv("NP6_TARGET_API_KEY") + "\""
