@@ -280,7 +280,7 @@ const {NPushModule} = ReactNative.NativeModules;
 	
 ### Implement contact methods   
 
-Use one of these functions depending on the type of credential you are using.
+Add a new function depending on the type of credential you are using.
 
 Example attaching device subscription by id
 
@@ -290,6 +290,7 @@ Example attaching device subscription by id
         NPush.getInstance().setContact(getReactApplicationContext(), new ContactIdRepresentation(id));
     }
 ```
+
 
 &nbsp;
 &nbsp;
