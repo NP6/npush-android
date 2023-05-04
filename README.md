@@ -291,6 +291,11 @@ Example attaching device subscription by id
     }
 ```
 
+If everything is done. You will see the following lines in your application log :
+
+```
+I/np6-messaging: Subscription created successfully
+```
 
 &nbsp;
 &nbsp;
@@ -359,6 +364,12 @@ The call the dart module **NPush.dart** inside the flutter application :
 
 ```dart
 NPush.setContactById("000T315");
+```
+
+If everything is done. You will see the following lines in your application log :
+
+```
+I/np6-messaging: Subscription created successfully
 ```
 
 ## Advanced 
