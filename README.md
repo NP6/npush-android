@@ -3,16 +3,16 @@
 [![](https://jitpack.io/v/NP6/npush-android.svg)](https://jitpack.io/#NP6/npush-android)
 
 ## Introduction 
-This library is a part of NP6 Push Notifications service, it allows interactions with users via Push Notifications sent via NP6 CM. 
+This library is a part of NP6 Push Notifications service, it allows interactions with users via Push Notifications sent via NP6. 
 
 ## Table of content
 1. [Prerequisites](#prerequisites)
 2. [Installation](#installation)
-    * [Notififcaiton Service]()
-    * [Contact Subscription]()
-	    * [Native implementation]()
-	    * [React native implementation]()
-	    * [Flutter implementation]()
+    * [Firebase Notification Service](#complete-myfirebasemessagingservicejava)
+    * [Contact Subscription](#attach-contact-to-device-subscription)
+	    * [Native implementation](#example-attaching-device-subscription-by-hash)
+	    * [React native implementation](#react-native-implementation)
+	    * [Flutter implementation](#flutter-implementation)
 
 
 ## Prerequisites
