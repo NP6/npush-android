@@ -151,12 +151,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-        NPush.Instance().HandleNotification(this, remoteMessage.getData());
-    }
-
-    @Override
-    public void onNewToken(@NonNull String token) {
-        NPush.Instance().SetDeviceToken(this, token);
+        NPush.Instance().handleNotification(this, remoteMessage.getData());
     }
 }
 ```
@@ -199,21 +194,21 @@ Please note that these identifiers are specific to the NP6 platform. Before proc
 ##### Example attaching device subscription by hash
 ```java
             
-    NPush.Instance().SetContact(context, new ContactHashRepresentation(data.hash));
+    NPush.Instance().setContact(context, new ContactHashRepresentation(data.hash));
         
 ```
 
 ##### Example attaching device subscription by unicity
 ```java
     
-    NPush.Instance().SetContact(context, new ContactUnicityRepresentation(data.unicity));
+    NPush.Instance().setContact(context, new ContactUnicityRepresentation(data.unicity));
         
 ```
 
 ##### Example attaching device subscription by id
 ```java
             
-    NPush.Instance().SetContact(context, new ContactIdRepresentation(data.id));
+    NPush.Instance().setContact(context, new ContactIdRepresentation(data.id));
         
 ```
 
@@ -287,7 +282,7 @@ Example attaching device subscription by id
 ```java
     @ReactMethod
     public void setContactById(String id) {
-        NPush.getInstance().setContact(getReactApplicationContext(), new ContactIdRepresentation(id));
+        NPush.Instance().setContact(getReactApplicationContext(), new ContactIdRepresentation(id));
     }
 ```
 
@@ -349,7 +344,7 @@ If there are any errors during the process, we return a FlutterError.
 
             when (call.method) {
                 "SetContactById" -> {
-                    NPush.Instance().SetContact(this.context, ContactIdRepresentation(value))
+                    NPush.Instance().setContact(this.context, ContactIdRepresentation(value))
                     result.success(null)
                 }
                 else -> {
